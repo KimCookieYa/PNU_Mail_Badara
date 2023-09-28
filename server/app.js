@@ -63,7 +63,7 @@ app.post("/api/user/subscribe", async (req, res) => {
 
   try {
     // 이메일을 MongoDB에 저장
-    const newEmail = await new Email({ email });
+    const newEmail = new Email({ email });
     await newEmail.save();
     res.json({ type: "SUCCESS", message: "이메일 저장 성공" });
   } catch (error) {
@@ -77,8 +77,16 @@ app.delete("/api/user/unsubscribe/:email", async (req, res) => {
   const { email } = req.params;
 
   try {
+    // 존재 여부 확인
+    const temp = await Email.findOne({ email });
+    if (!temp) {
+      return res.json({
+        type: "NONE",
+        message: "이메일이 구독 중이 아닙니다.",
+      });
+    }
     // 이메일을 MongoDB에서 삭제
-    await Email.deleteOne({ email: email });
+    await Email.deleteOne({ email });
     res.json({ type: "SUCCESS", message: "이메일 삭제 성공" });
   } catch (error) {
     console.error(error);
@@ -204,8 +212,6 @@ async function sendEmailFor(user, message) {
     const info = await transporter.sendMail(mailOptions);
     console.log(`Email sent: ${info.res}`);
     await Email.updateOne({ email: user.email }, { latest: latest });
-    const temp = await Email.findOne({ email: user.email });
-    console.log(temp);
   } catch (error) {
     console.error(error);
   }
