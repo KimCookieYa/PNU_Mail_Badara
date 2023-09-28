@@ -1,21 +1,44 @@
 import { useState } from "react";
 import axios from "axios";
 
+type Response = {
+  data: {
+    type: string;
+    message: string;
+  };
+};
+
 function Main() {
   const [email, setEmail] = useState<string>("");
   const [subscribed, setSubscribed] = useState<boolean>(false);
 
   const handleSubscribe = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
+    // Email Validation
+    if (
+      !email ||
+      !email.includes("@") ||
+      !email.includes(".") ||
+      email.split("@")[0].length < 5
+    ) {
+      alert("이메일 형식이 올바르지 않습니다.");
+      return;
+    }
+
     try {
       if (!subscribed) {
-        await axios.post("/api/user/subscribe", { email });
-        console.log("Email sent and saved to the database");
-        setSubscribed(true);
+        axios.post("/api/user/subscribe", { email }).then((res: Response) => {
+          console.log(res.data);
+          alert(res.data);
+          setSubscribed(true);
+        });
       } else {
-        await axios.delete(`/api/user/unsubscribe/${email}`);
-        console.log("Email removed from the database");
-        setSubscribed(false);
+        axios.delete(`/api/user/unsubscribe/${email}`).then((res: Response) => {
+          console.log(res.data);
+          alert(res.data);
+          setSubscribed(false);
+        });
       }
     } catch (error) {
       console.error("Error:", error);
