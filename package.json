@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "start": "cd server && yarn start"
+    "start": "cd server && yarn start",
+    "start:dev": "cd server && yarn start:dev"
   },
   "dependencies": {
     "axios": "^1.5.1",

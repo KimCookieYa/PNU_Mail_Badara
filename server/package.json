@@ -15,9 +15,11 @@
     "xml2js": "^0.6.2"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "start:dev": "nodemon app.js"
   },
   "devDependencies": {
-    "@types/nodemailer": "^6.4.11"
+    "@types/nodemailer": "^6.4.11",
+    "nodemon": "^3.0.1"
   }
 }
