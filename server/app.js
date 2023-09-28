@@ -59,6 +59,14 @@ app.post("/api/user/subscribe", async (req, res) => {
     return res.status(400).json({ message: "이메일 주소가 필요합니다." });
   }
 
+  // 이메일 중복 체크
+  const alreadySubscribed = await Email.findOne({ email: email });
+  if (alreadySubscribed) {
+    return res
+      .status(400)
+      .json({ message: "이메일 주소가 이미 구독 중입니다." });
+  }
+
   try {
     // 이메일을 MongoDB에 저장
     const newEmail = await new Email({ email });
