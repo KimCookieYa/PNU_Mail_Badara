@@ -111,9 +111,8 @@ app.listen(port, () => {
   console.log("[Running] Server is running on port", port);
 });
 
-// 매 30분마다 실행
-cron.schedule("0 0 0 * * *", () => {
-  // RSS 데이터 가져오기
+// cron job at 18:00
+cron.schedule("0 10,14,18 * * *", () => {
   console.log("[Cron] Fetching RSS data.");
   Department.find({}).then((departments) => {
     if (departments.length === 0) {
