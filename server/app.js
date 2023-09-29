@@ -4,32 +4,22 @@ import cron from "node-cron";
 import axios from "axios";
 import xml2js from "xml2js";
 import dotenv from "dotenv";
-import mongoose from "mongoose";
 import cors from "cors";
 import bodyParser from "body-parser";
-import { Email } from "./models/Email.js";
+import User from "./models/User.js";
+import Department from "./models/Department.js";
 import nodemailer from "nodemailer";
 import { scrapeImages } from "./utils/scrapeImages.js";
+import setMock from "./utils/SetMock.js";
 
 dotenv.config();
-
-const rssUrl = "https://cse.pusan.ac.kr/bbs/cse/2616/rssList.do?row=50";
 
 const __dirname = path.resolve();
 const app = express();
 const port = 3000;
 
-mongoose
-  .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("MongoDB Connected");
-  })
-  .catch((error) => {
-    console.error(error);
-  });
+// Connect to MongoDB and Set Mock
+await setMock();
 
 // 정적 파일 제공
 app.use(cors());
@@ -53,7 +43,7 @@ app.post("/api/user/subscribe", async (req, res) => {
   }
 
   // 이메일 중복 체크
-  const alreadySubscribed = await Email.findOne({ email: email });
+  const alreadySubscribed = await User.findOne({ email: email });
   if (alreadySubscribed) {
     return res.json({
       type: "EXIST",
@@ -63,7 +53,7 @@ app.post("/api/user/subscribe", async (req, res) => {
 
   try {
     // 이메일을 MongoDB에 저장
-    const newEmail = new Email({ email });
+    const newEmail = new User({ email });
     await newEmail.save();
     res.json({ type: "SUCCESS", message: "이메일 저장 성공" });
   } catch (error) {
@@ -78,7 +68,7 @@ app.delete("/api/user/unsubscribe/:email", async (req, res) => {
 
   try {
     // 존재 여부 확인
-    const temp = await Email.findOne({ email });
+    const temp = await User.findOne({ email });
     if (!temp) {
       return res.json({
         type: "NONE",
@@ -86,7 +76,7 @@ app.delete("/api/user/unsubscribe/:email", async (req, res) => {
       });
     }
     // 이메일을 MongoDB에서 삭제
-    await Email.deleteOne({ email });
+    await User.deleteOne({ email });
     res.json({ type: "SUCCESS", message: "이메일 삭제 성공" });
   } catch (error) {
     console.error(error);
@@ -95,67 +85,97 @@ app.delete("/api/user/unsubscribe/:email", async (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log("[Running] Server is running on port", port);
 });
 
 // 매 30분마다 실행
-cron.schedule("0/59 * * * * *", () => {
+cron.schedule("0 * * * * *", () => {
   // RSS 데이터 가져오기
   console.log("[Cron] Fetching RSS data");
-  axios
-    .get(rssUrl)
-    .then((res) => {
-      if (res.status === 200) {
-        const xmlData = res.data;
+  Department.find({}).then((departments) => {
+    if (departments.length === 0) {
+      console.log("[Cron] Department is nothing.");
+      return;
+    }
 
-        // XML 파싱
-        xml2js.parseString(xmlData, async (error, result) => {
-          if (error) {
-            console.error(error);
-            return;
-          }
-
-          // <item> 태그 내의 정보 가져오기
-          const items = result.rss.channel[0].item.splice(0, 3);
-          const message = {};
-          let latest = -1;
-          // 각 아이템 정보 출력
-          for (const item of items) {
-            const idx = item.link[0].split("/")[6];
-            if (Number(idx) > latest) {
-              latest = Number(idx);
-            }
-
-            const images = await scrapeImages(item.link[0]);
-            console.log(images);
-            message[idx] = {
-              title: item.title[0],
-              images: images,
-              link: item.link[0],
-              pubDate: item.pubDate[0],
-            };
-          }
-          console.log(message);
-          sendEmail(message, latest);
-        });
-      } else {
-        console.error("[Cron] Failed to fetch RSS data");
+    departments.forEach(async (department) => {
+      if (department.boards.length === 0) {
+        console.log("[Cron] No RSS data for", department.code);
+        return;
       }
-    })
-    .catch((error) => {
-      console.error(error);
+
+      const messages = {};
+      console.log("[Cron] Fetching RSS data for", department.code);
+
+      for (const [idx, board] of department.boards.entries()) {
+        const rssUrl = department.url + board + "/rssList.do?row=3";
+        try {
+          const res = await axios.get(rssUrl);
+          if (res.status === 200) {
+            const xmlData = res.data;
+
+            // XML 파싱
+            const result = await xml2js.parseStringPromise(xmlData);
+
+            // <item> 태그 내의 정보 가져오기
+            const items = result.rss.channel[0].item.splice(0, 3);
+            const message = {};
+            let latestPostIndex = -1;
+            // 각 아이템 정보 출력
+            for (const item of items) {
+              const postIdx = item.link[0].split("/")[6];
+              if (Number(postIdx) > latestPostIndex) {
+                latestPostIndex = Number(postIdx);
+              }
+
+              const images = await scrapeImages(item.link[0]);
+
+              message[postIdx] = {
+                title: item.title[0],
+                images: images,
+                link: item.link[0],
+                pubDate: item.pubDate[0],
+              };
+            }
+            console.log(message);
+            messages[department.board_names[idx]] = {
+              message,
+              latestPostIndex,
+            };
+          } else {
+            console.error("[Cron] Failed to fetch RSS data");
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      await sendEmail(messages, department);
     });
+  });
 });
 
-async function sendEmail(message, latest) {
-  Email.find({ latest: { $lt: latest } }, "email latest")
+async function sendEmail(messages, department) {
+  console.log("[Send] Sending email for All...");
+  console.log(messages);
+  const values = Object.values(messages);
+  const condition = Array.from({ length: values.length }, (_, idx) => ({
+    [`latest_post_indexs.${idx}`]: { $lt: values[idx].latestPostIndex },
+  }));
+  const query = {
+    department_code: department.code,
+  };
+  if (condition.length > 0) {
+    query.$or = condition;
+  }
+  await User.find(query)
     .then((users) => {
       if (users.length === 0) {
         console.log("[Send] All users are latest");
         return;
       }
       users.forEach((user) => {
-        sendEmailFor(user, message);
+        sendEmailFor(user, messages, department);
       });
     })
     .catch((error) => {
@@ -174,26 +194,44 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function sendEmailFor(user, message) {
+async function sendEmailFor(user, messages, department) {
   // 유저 최근 게시물 인덱스보다 큰 게시물만 전송하도록 필터링
-  const idxs = Object.keys(message);
-  let content = `<h2>[정보컴퓨터공학부] 채용게시판</h2>`;
   let count = 0;
-  let latest = Number(user.latest);
+  let boardIdx = 0;
+  let content = "";
+  const boardNames = Object.keys(messages);
+  const updatedLatestPostIndexs = [];
+  for (const boardName of boardNames) {
+    const message = messages[boardName];
+    const postIdxs = Object.keys(message.message);
+    updatedLatestPostIndexs.push(message.latestPostIndex);
 
-  idxs.forEach((idx) => {
-    const i = Number(idx);
-    if (i > latest) {
-      content +=
-        "<div style='display: flex; flex-direction: column; align-items: center; text-align: center;'>";
-      for (const img of message[i].images) {
-        content += `<img src="${img}" alt="image" width="400px" ratio="1.6">`;
+    content += `<br /><br />
+                <h1>[${department.name}] ${boardName}</h1>
+                <div style="background-color: black; width: 40vw; height: 3px"/>`;
+    let latestPostIndexs = user.latest_post_indexs;
+
+    for (const postIdx of postIdxs) {
+      const postIndex = Number(postIdx);
+      if (postIndex > latestPostIndexs[boardIdx]) {
+        content += `<div style='display: flex; flex-direction: column; margin: 10px'>
+                      <p>제목:
+                        <a href="${message.message[postIndex].link}">
+                          ${message.message[postIndex].title}
+                        </a>
+                        <br />
+                        게시일: ${message.message[postIndex].pubDate}
+                      </p>
+                    </div>`;
+        for (const img of message.message[postIndex].images) {
+          content += `<img src="${img}" alt="image" style="width: 60vw">`;
+        }
+        count++;
       }
-      content += `<a href="${message[i].link}">${message[i].title}</a></div><br />`;
-      count++;
-      latest = i;
     }
-  });
+    boardIdx++;
+  }
+
   console.log(content);
 
   // 새로운 게시물이 없으면, return
@@ -204,14 +242,17 @@ async function sendEmailFor(user, message) {
   const mailOptions = {
     from: process.env.GOOGLE_MAIL_USER,
     to: user.email,
-    subject: `[정보컴퓨터공학부] New Information(${count})`,
+    subject: `[${department.name}] 새 소식이 왔습니다!(${count})`,
     html: content,
   };
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log(`Email sent: ${info.res}`);
-    await Email.updateOne({ email: user.email }, { latest: latest });
+    console.log("[Success] send email to", user.email);
+    await User.updateOne(
+      { email: user.email },
+      { latest_post_indexs: updatedLatestPostIndexs }
+    );
   } catch (error) {
     console.error(error);
   }
