@@ -21,16 +21,16 @@ const port = 3000;
 // Connect to MongoDB and Set Mock
 await setMock();
 
-// 정적 파일 제공
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "../dist")));
 
-// 루트 엔드포인트에서 React 앱을 서비스
+// serve React
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
+// email subscribe endpoint
 app.post("/api/user/subscribe", async (req, res) => {
   const { email } = req.body;
   if (
@@ -39,48 +39,48 @@ app.post("/api/user/subscribe", async (req, res) => {
     !email.includes(".") ||
     email.split("@")[0].length < 5
   ) {
-    return res.json({ type: "NONE", message: "이메일 주소가 필요합니다." });
+    return res.json({ type: "NONE", message: "[Error] invalid email" });
   }
 
-  // 이메일 중복 체크
+  // check subscribed
   const alreadySubscribed = await User.findOne({ email: email });
   if (alreadySubscribed) {
     return res.json({
       type: "EXIST",
-      message: "이메일 주소가 이미 구독 중입니다.",
+      message: "[Dup] Already subscribed",
     });
   }
 
   try {
-    // 이메일을 MongoDB에 저장
+    // save email to MongoDB
     const newEmail = new User({ email });
     await newEmail.save();
-    res.json({ type: "SUCCESS", message: "이메일 저장 성공" });
+    res.json({ type: "SUCCESS", message: "[Success] subscribe" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ type: "ERROR", message: "서버 오류" });
+    res.status(500).json({ type: "ERROR", message: "[Error] server error" });
   }
 });
 
-// 이메일 삭제 엔드포인트
+// email delete endpoint
 app.delete("/api/user/unsubscribe/:email", async (req, res) => {
   const { email } = req.params;
 
   try {
-    // 존재 여부 확인
+    // check subscribed
     const temp = await User.findOne({ email });
     if (!temp) {
       return res.json({
         type: "NONE",
-        message: "이메일이 구독 중이 아닙니다.",
+        message: "[Error] not subscribed",
       });
     }
     // 이메일을 MongoDB에서 삭제
     await User.deleteOne({ email });
-    res.json({ type: "SUCCESS", message: "이메일 삭제 성공" });
+    res.json({ type: "SUCCESS", message: "[Success] unsubscribe" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ type: "ERROR", message: "서버 오류" });
+    res.status(500).json({ type: "ERROR", message: "[Error] server error" });
   }
 });
 
@@ -179,7 +179,7 @@ async function sendEmail(messages, department) {
       });
     })
     .catch((error) => {
-      console.log("이메일 조회 오류:", error);
+      console.log(error);
     });
 }
 
@@ -195,7 +195,6 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendEmailFor(user, messages, department) {
-  // 유저 최근 게시물 인덱스보다 큰 게시물만 전송하도록 필터링
   let count = 0;
   let boardIdx = 0;
   let content = "";
@@ -234,7 +233,7 @@ async function sendEmailFor(user, messages, department) {
 
   console.log(content);
 
-  // 새로운 게시물이 없으면, return
+  // if there is no new post, return
   if (count === 0) {
     return;
   }
@@ -242,7 +241,7 @@ async function sendEmailFor(user, messages, department) {
   const mailOptions = {
     from: process.env.GOOGLE_MAIL_USER,
     to: user.email,
-    subject: `[${department.name}] 새 소식이 왔습니다!(${count})`,
+    subject: `[${department.name}] ${count}개의 새 소식이 왔습니다!`,
     html: content,
   };
 
