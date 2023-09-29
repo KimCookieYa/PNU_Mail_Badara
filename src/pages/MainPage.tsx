@@ -24,7 +24,6 @@ function Main() {
       try {
         const res = await axios.get("/api/department");
         setDepartmentList(res.data.data);
-        console.log(res.data);
       } catch (error) {
         console.error("Error:", error);
       }
@@ -49,11 +48,10 @@ function Main() {
     axios
       .post("/api/user/subscribe", { email })
       .then((res: Response) => {
-        console.log(res.data);
-        alert(res.data.message);
+        alert(`${res.data.type}: ${res.data.message}`);
       })
       .catch((error) => {
-        console.error("Error:", error);
+        console.error("ERROR:", error);
       });
   };
 
@@ -63,11 +61,10 @@ function Main() {
     axios
       .delete(`/api/user/unsubscribe/${email}`)
       .then((res: Response) => {
-        console.log(res.data);
-        alert(res.data.message);
+        alert(`${res.data.type}: ${res.data.message}`);
       })
       .catch((error) => {
-        console.error("Error:", error);
+        console.error("ERROR:", error);
       });
   };
 
