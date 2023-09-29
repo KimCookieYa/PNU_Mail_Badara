@@ -18,7 +18,7 @@ dotenv.config();
 
 const __dirname = path.resolve();
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB and Set Mock
 await setMock();
@@ -107,8 +107,8 @@ app.get("/api/department", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log("[Running] Server is running on port", port);
+app.listen(PORT, () => {
+  console.log("[Running] Server is running on port", PORT);
 });
 
 // cron job at 18:00
