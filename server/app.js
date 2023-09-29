@@ -18,7 +18,7 @@ dotenv.config();
 
 const __dirname = path.resolve();
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.NODE_ENV === "production" ? process.env.PORT : 3000;
 
 // Connect to MongoDB and Set Mock
 await setMock();

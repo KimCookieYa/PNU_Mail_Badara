@@ -4,9 +4,14 @@ import User from "../models/User.js";
 import { mockDepartments } from "../utils/DepartmentData.js";
 import { mockUsers } from "../utils/UserData.js";
 
+const CONNECTION_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.MONGO_ATLAS_CONNECTION_URL
+    : process.env.MONGO_LOCAL_CONNECTION_URL;
+
 export default async function setMock() {
   mongoose
-    .connect(process.env.MONGO_URL, {
+    .connect(CONNECTION_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     })
