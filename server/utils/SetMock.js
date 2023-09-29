@@ -10,48 +10,46 @@ const CONNECTION_URL =
     : process.env.MONGO_LOCAL_CONNECTION_URL;
 
 export default async function setMock() {
-  mongoose
-    .connect(CONNECTION_URL)
-    .then(() => {
-      console.log("[Success] MongoDB Connected");
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+  try {
+    await mongoose.connect(CONNECTION_URL);
+    console.log("[Success] MongoDB Connected");
 
-  // set department mock data and check if department already exists.
-  for (const mockDepartment of mockDepartments) {
-    const existed = await Department.findOne({ code: mockDepartment.code });
-    if (!existed) {
-      const department = new Department(mockDepartment);
-      department
-        .save()
-        .then((savedDepartment) => {
-          console.log("[Success] Department saved:", savedDepartment);
-        })
-        .catch((error) => {
-          console.error("[Error] saving department:", error);
-        });
-    } else {
-      console.log("Department already exists.");
+    // set department mock data and check if department already exists.
+    for (const mockDepartment of mockDepartments) {
+      const existed = await Department.findOne({ code: mockDepartment.code });
+      if (!existed) {
+        const department = new Department(mockDepartment);
+        department
+          .save()
+          .then((savedDepartment) => {
+            console.log("[Success] Department saved:", savedDepartment);
+          })
+          .catch((error) => {
+            console.error("[Error] saving department:", error);
+          });
+      } else {
+        console.log("Department already exists.");
+      }
     }
-  }
 
-  // set user mock data and check if user already exists.
-  for (const mockUser of mockUsers) {
-    const existed = await User.findOne({ email: mockUser.email });
-    if (!existed) {
-      const user = new User(mockUser);
-      user
-        .save()
-        .then((savedUser) => {
-          console.log("[Success] User saved:", savedUser);
-        })
-        .catch((error) => {
-          console.error("[Error] saving user:", error);
-        });
-    } else {
-      console.log("User already exists.");
+    // set user mock data and check if user already exists.
+    for (const mockUser of mockUsers) {
+      const existed = await User.findOne({ email: mockUser.email });
+      if (!existed) {
+        const user = new User(mockUser);
+        user
+          .save()
+          .then((savedUser) => {
+            console.log("[Success] User saved:", savedUser);
+          })
+          .catch((error) => {
+            console.error("[Error] saving user:", error);
+          });
+      } else {
+        console.log("User already exists.");
+      }
     }
+  } catch (error) {
+    console.error(error);
   }
 }
