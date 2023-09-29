@@ -6,7 +6,7 @@ export const mockUsers = [
   },
   {
     email: "min49590@naver.com",
-    latest_post_indexs: [0, 0, 0, 0, 0],
-    department_code: "comm",
+    latest_post_indexs: [0, 0, 0, 0],
+    department_code: "biz",
   },
 ];
