@@ -3,13 +3,15 @@ import path from "path";
 import cron from "node-cron";
 import axios from "axios";
 import xml2js from "xml2js";
-import dotenv from "dotenv";
 import cors from "cors";
 import bodyParser from "body-parser";
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
 import User from "./models/User.js";
 import Department from "./models/Department.js";
-import nodemailer from "nodemailer";
-import { scrapeImages } from "./utils/scrapeImages.js";
+
+import scrapeImages from "./utils/ScrapeImages.js";
 import setMock from "./utils/SetMock.js";
 
 dotenv.config();
