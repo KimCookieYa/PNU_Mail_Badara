@@ -11,10 +11,7 @@ const CONNECTION_URL =
 
 export default async function setMock() {
   mongoose
-    .connect(CONNECTION_URL, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
+    .connect(CONNECTION_URL)
     .then(() => {
       console.log("[Success] MongoDB Connected");
     })
