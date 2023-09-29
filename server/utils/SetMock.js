@@ -28,10 +28,10 @@ export default async function setMock() {
           console.log("[Success] Department saved:", savedDepartment);
         })
         .catch((error) => {
-          console.error("Error saving department:", error);
+          console.error("[Error] saving department:", error);
         });
     } else {
-      console.log("[Dup] Department already exists.");
+      console.log("Department already exists.");
     }
   }
 
@@ -46,10 +46,10 @@ export default async function setMock() {
           console.log("[Success] User saved:", savedUser);
         })
         .catch((error) => {
-          console.error("Error saving user:", error);
+          console.error("[Error] saving user:", error);
         });
     } else {
-      console.log("[Dup] User already exists.");
+      console.log("User already exists.");
     }
   }
 }

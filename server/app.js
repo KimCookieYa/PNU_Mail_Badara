@@ -41,15 +41,15 @@ app.post("/api/user/subscribe", async (req, res) => {
     !email.includes(".") ||
     email.split("@")[0].length < 5
   ) {
-    return res.json({ type: "NONE", message: "[Error] invalid email" });
+    return res.json({ type: "ERROR", message: "Invalid email." });
   }
 
   // check subscribed
   const alreadySubscribed = await User.findOne({ email: email });
   if (alreadySubscribed) {
     return res.json({
-      type: "EXIST",
-      message: "[Dup] Already subscribed",
+      type: "NONE",
+      message: "Already subscribed.",
     });
   }
 
@@ -57,10 +57,10 @@ app.post("/api/user/subscribe", async (req, res) => {
     // save email to MongoDB
     const newEmail = new User({ email });
     await newEmail.save();
-    res.json({ type: "SUCCESS", message: "[Success] subscribe" });
+    res.json({ type: "SUCCESS", message: "Save user information:)" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ type: "ERROR", message: "[Error] server error" });
+    res.status(500).json({ type: "ERROR", message: "Server error!" });
   }
 });
 
@@ -74,15 +74,36 @@ app.delete("/api/user/unsubscribe/:email", async (req, res) => {
     if (!temp) {
       return res.json({
         type: "NONE",
-        message: "[Error] not subscribed",
+        message: "Not subscribed.",
       });
     }
     // 이메일을 MongoDB에서 삭제
     await User.deleteOne({ email });
-    res.json({ type: "SUCCESS", message: "[Success] unsubscribe" });
+    res.json({ type: "SUCCESS", message: "Delete user information" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ type: "ERROR", message: "[Error] server error" });
+    res.status(500).json({ type: "ERROR", message: "Server error!" });
+  }
+});
+
+// department endpoint
+app.get("/api/department", async (req, res) => {
+  try {
+    const departments = await Department.find({}, "code name");
+    const data = {};
+    for (const department of departments) {
+      data[department.code] = department.name;
+    }
+
+    console.log("Get department list.");
+    res.json({
+      type: "SUCCESS",
+      message: "Get department list.",
+      data: data,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ type: "ERROR", message: "Server error" });
   }
 });
 
@@ -91,9 +112,9 @@ app.listen(port, () => {
 });
 
 // 매 30분마다 실행
-cron.schedule("0 * * * * *", () => {
+cron.schedule("0 0 0 * * *", () => {
   // RSS 데이터 가져오기
-  console.log("[Cron] Fetching RSS data");
+  console.log("[Cron] Fetching RSS data.");
   Department.find({}).then((departments) => {
     if (departments.length === 0) {
       console.log("[Cron] Department is nothing.");
@@ -145,7 +166,7 @@ cron.schedule("0 * * * * *", () => {
               latestPostIndex,
             };
           } else {
-            console.error("[Cron] Failed to fetch RSS data");
+            console.error("[Cron] Failed to fetch RSS data.");
           }
         } catch (error) {
           console.error(error);
@@ -158,7 +179,7 @@ cron.schedule("0 * * * * *", () => {
 });
 
 async function sendEmail(messages, department) {
-  console.log("[Send] Sending email for All...");
+  console.log("Sending email for All...");
   console.log(messages);
   const values = Object.values(messages);
   const condition = Array.from({ length: values.length }, (_, idx) => ({
@@ -173,7 +194,7 @@ async function sendEmail(messages, department) {
   await User.find(query)
     .then((users) => {
       if (users.length === 0) {
-        console.log("[Send] All users are latest");
+        console.log("All users are latest.");
         return;
       }
       users.forEach((user) => {
@@ -249,7 +270,7 @@ async function sendEmailFor(user, messages, department) {
 
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log("[Success] send email to", user.email);
+    console.log("[Success] Send email to", user.email);
     await User.updateOne(
       { email: user.email },
       { latest_post_indexs: updatedLatestPostIndexs }
