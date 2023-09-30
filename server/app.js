@@ -263,7 +263,7 @@ cron.schedule("0 * * * * *", () => {
                 pubDate: item.pubDate[0],
               };
             }
-            console.log(message);
+            //console.log(message);
             messages[department.board_names[idx]] = {
               message,
               latestPostIndex,
@@ -292,7 +292,7 @@ cron.schedule("0 * * * * *", () => {
 
 async function sendEmail(messages, department) {
   console.log("Sending email for All...");
-  console.log(messages);
+  //console.log(messages);
   const values = Object.values(messages);
   const condition = Array.from({ length: values.length }, (_, idx) => ({
     [`latest_post_indexs.${idx}`]: { $lt: values[idx].latestPostIndex },
