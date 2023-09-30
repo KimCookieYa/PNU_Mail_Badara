@@ -18,7 +18,7 @@ dotenv.config();
 
 const __dirname = path.resolve();
 const app = express();
-const PORT = process.env.NODE_ENV === "production" ? process.env.PORT : 8000;
+const PORT = process.env.NODE_ENV === "production" ? process.env.PORT : 3000;
 
 // Connect to MongoDB and Set Mock
 await setMock();
@@ -34,7 +34,7 @@ app.get("/", (req, res) => {
 
 // email subscribe endpoint
 app.post("/api/user/subscribe", async (req, res) => {
-  const { email } = req.body;
+  const { email, department } = req.body;
   if (
     !email ||
     !email.includes("@") ||
@@ -49,13 +49,15 @@ app.post("/api/user/subscribe", async (req, res) => {
   if (alreadySubscribed) {
     return res.json({
       type: "NONE",
-      message: "Already subscribed.",
+      message: `${email} is already subscribed to ${department}.`,
     });
   }
 
+  // TODO: check email validation.
+
   try {
     // save email to MongoDB
-    const newEmail = new User({ email });
+    const newEmail = new User({ email: email, department_code: department });
     await newEmail.save();
     res.json({ type: "SUCCESS", message: "Save user information:)" });
   } catch (error) {

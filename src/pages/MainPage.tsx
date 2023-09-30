@@ -46,7 +46,7 @@ function Main() {
     }
 
     axios
-      .post("/api/user/subscribe", { email })
+      .post("/api/user/subscribe", { email, department: selectedDepartment })
       .then((res: Response) => {
         alert(`${res.data.type}: ${res.data.message}`);
       })
