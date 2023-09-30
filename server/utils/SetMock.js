@@ -4,12 +4,12 @@ import User from "../models/User.js";
 import { mockDepartments } from "../utils/DepartmentData.js";
 import { mockUsers } from "../utils/UserData.js";
 
-const CONNECTION_URL =
-  process.env.NODE_ENV === "production"
-    ? process.env.MONGO_ATLAS_CONNECTION_URL
-    : process.env.MONGO_LOCAL_CONNECTION_URL;
-
 export default async function setMock() {
+  const CONNECTION_URL =
+    process.env.NODE_ENV === "production"
+      ? process.env.MONGO_ATLAS_CONNECTION_URL
+      : process.env.MONGO_LOCAL_CONNECTION_URL;
+
   try {
     await mongoose.connect(CONNECTION_URL);
     console.log("[Success] MongoDB Connected");
@@ -28,7 +28,7 @@ export default async function setMock() {
             console.error("[Error] saving department:", error);
           });
       } else {
-        console.log("Department already exists.");
+        console.log(`Department(${mockDepartment.code}) already exists.`);
       }
     }
 
@@ -46,7 +46,7 @@ export default async function setMock() {
             console.error("[Error] saving user:", error);
           });
       } else {
-        console.log("User already exists.");
+        console.log(`User(${mockUser.email}) already exists.`);
       }
     }
   } catch (error) {
