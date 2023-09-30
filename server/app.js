@@ -15,6 +15,7 @@ import { scrapeImages } from "./utils/ScrapeImages.js";
 import { setMock } from "./utils/SetMock.js";
 
 dotenv.config();
+global.waitingQueue = {};
 
 const __dirname = path.resolve();
 const app = express();
@@ -22,6 +23,18 @@ const PORT = process.env.NODE_ENV === "production" ? process.env.PORT : 3000;
 
 // Connect to MongoDB and Set Mock
 await setMock();
+
+// Create email transporter
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.GOOGLE_MAIL_USER,
+    pass: process.env.GOOGLE_MAIL_APP_PASSWORD,
+  },
+});
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -31,6 +44,11 @@ app.use(express.static(path.join(__dirname, "../dist")));
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
+
+// check whether the email exists in the database
+async function isExistingEmail(email) {
+  return await User.findOne({ email: email });
+}
 
 // email subscribe endpoint
 app.post("/api/user/subscribe", async (req, res) => {
@@ -45,21 +63,101 @@ app.post("/api/user/subscribe", async (req, res) => {
   }
 
   // check subscribed
-  const alreadySubscribed = await User.findOne({ email: email });
-  if (alreadySubscribed) {
+  if (await isExistingEmail(email)) {
     return res.json({
       type: "NONE",
       message: `${email} is already subscribed to ${department}.`,
     });
   }
 
-  // TODO: check email validation.
+  // check email validation.
+  const mailOptions = {
+    from: process.env.GOOGLE_MAIL_USER,
+    to: email,
+    subject: "[PNU 메일 받아라] 이메일 검증 안내",
+    html: `<div style="display: flex; flex-direction: column; margin: 10px">
+            다음 버튼을 눌러 최종적으로 메일을 검증해주시기 바랍니다.
+            <a href="${
+              process.env.NODE_ENV === "production"
+                ? process.env.PRODUCTION_URL
+                : process.env.DEVELOPMENT_URL
+            }/api/user/validation/${email}">
+              <button>Validate</button>
+            </a>
+          </div>`,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    const startTime = new Date();
+    global.waitingQueue[email] = {
+      department_code: department,
+      start_time: startTime,
+    };
+    res.json({
+      type: "SUCCESS",
+      message: `이메일 검증을 위해 귀하(${email})의 메일함을 확인해주시기 바랍니다:)`,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ type: "ERROR", message: "Server error!" });
+  }
+});
+
+// check whether the email verification period(10min) has expired.
+function isExpired(startTime, endTime) {
+  const diff = endTime.getTime() - startTime.getTime();
+  return diff > 1000 * 60 * 10;
+}
+
+// email validation endpoint
+app.get("/api/user/validation/:email", async (req, res) => {
+  const { email } = req.params;
+
+  // check if email exist in waiting queue
+  if (!(email in global.waitingQueue)) {
+    res.status(500).json({
+      type: "ERROR",
+      message: "Server error! Your email don't exist in waiting queue.",
+    });
+  }
+
+  // check if email validation is expired
+  if (isExpired(global.waitingQueue[email].start_time, new Date())) {
+    delete global.waitingQueue[email];
+    res.status(500).json({
+      type: "ERROR",
+      message: "Your email validation is expired.",
+    });
+  }
+
+  // check if email exist in database
+  if (await isExistingEmail(email)) {
+    res.status(500).json({
+      type: "ERROR",
+      message: "Your email already exists in the database.",
+    });
+  }
+
+  const department = await Department.findOne({
+    code: global.waitingQueue[email].department_code,
+  });
 
   try {
     // save email to MongoDB
-    const newEmail = new User({ email: email, department_code: department });
+    const newEmail = new User({
+      email: email,
+      department_code: department.code,
+      latest_post_indexs: Array(department.boards.length).fill(-1),
+    });
     await newEmail.save();
-    res.json({ type: "SUCCESS", message: "Save user information:)" });
+    res.redirect(
+      `${
+        process.env.NODE_ENV === "production"
+          ? process.env.PRODUCTION_URL
+          : process.env.DEVELOPMENT_URL
+      }/validation/${email}`
+    );
   } catch (error) {
     console.error(error);
     res.status(500).json({ type: "ERROR", message: "Server error!" });
@@ -109,12 +207,16 @@ app.get("/api/department", async (req, res) => {
   }
 });
 
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist", "index.html"));
+});
+
 app.listen(PORT, () => {
   console.log("[Running] Server is running on port", PORT);
 });
 
 // cron job at 18:00
-cron.schedule("0 10,14,18 * * *", () => {
+cron.schedule("0 * * * * *", () => {
   console.log("[Cron] Fetching RSS data.");
   Department.find({}).then((departments) => {
     if (departments.length === 0) {
@@ -177,6 +279,15 @@ cron.schedule("0 10,14,18 * * *", () => {
       await sendEmail(messages, department);
     });
   });
+
+  // delete expired e-mails from the waiting list
+  console.log("[Cron] Deleting expired e-mails.");
+  Object.keys(global.waitingQueue).forEach((email) => {
+    if (isExpired(global.waitingQueue[email].start_time, new Date())) {
+      console.log("[Cron] Expired e-mail: ", email);
+      delete global.waitingQueue[email];
+    }
+  });
 });
 
 async function sendEmail(messages, department) {
@@ -195,7 +306,7 @@ async function sendEmail(messages, department) {
   await User.find(query)
     .then((users) => {
       if (users.length === 0) {
-        console.log("All users are latest.");
+        console.log(`All users of ${department.name} are latest.`);
         return;
       }
       users.forEach((user) => {
@@ -206,17 +317,6 @@ async function sendEmail(messages, department) {
       console.log(error);
     });
 }
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.GOOGLE_MAIL_USER,
-    pass: process.env.GOOGLE_MAIL_APP_PASSWORD,
-  },
-});
 
 async function sendEmailFor(user, messages, department) {
   let count = 0;
@@ -265,7 +365,7 @@ async function sendEmailFor(user, messages, department) {
   const mailOptions = {
     from: process.env.GOOGLE_MAIL_USER,
     to: user.email,
-    subject: `[${department.name}] ${count}개의 새 소식이 왔습니다!`,
+    subject: `[PNU 메일 받아라] ${department.name}에서 ${count}개의 새 소식이 왔습니다!`,
     html: content,
   };
 

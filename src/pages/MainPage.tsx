@@ -45,8 +45,15 @@ function Main() {
       return;
     }
 
+    const selectedDepartmentCode = Object.keys(departmentList).filter(
+      (key) => departmentList[key] === selectedDepartment
+    )[0];
+
     axios
-      .post("/api/user/subscribe", { email, department: selectedDepartment })
+      .post("/api/user/subscribe", {
+        email,
+        department: selectedDepartmentCode,
+      })
       .then((res: Response) => {
         alert(`${res.data.type}: ${res.data.message}`);
       })
