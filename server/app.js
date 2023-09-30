@@ -75,7 +75,7 @@ app.post("/api/user/subscribe", async (req, res) => {
     from: process.env.GOOGLE_MAIL_USER,
     to: email,
     subject: "[PNU 메일 받아라] 이메일 검증 안내",
-    html: `<div style="display: flex; flex-direction: column; margin: 10px">
+    html: `<div style="display: flex; flex-direction: column; gap: 10px">
             다음 버튼을 눌러 최종적으로 메일을 검증해주시기 바랍니다.
             <a href="${
               process.env.NODE_ENV === "production"
@@ -354,8 +354,11 @@ async function sendEmailFor(user, messages, department) {
     }
     boardIdx++;
   }
-
-  console.log(content);
+  content += `<a href="${
+    process.env.NODE_ENV === "production"
+      ? process.env.PRODUCTION_URL
+      : process.env.DEVELOPMENT_URL
+  }">Unsubscribe</a>`;
 
   // if there is no new post, return
   if (count === 0) {
