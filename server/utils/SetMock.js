@@ -4,7 +4,7 @@ import User from "../models/User.js";
 import { mockDepartments } from "../utils/DepartmentData.js";
 import { mockUsers } from "../utils/UserData.js";
 
-export default async function setMock() {
+export async function setMock() {
   const CONNECTION_URL =
     process.env.NODE_ENV === "production"
       ? process.env.MONGO_ATLAS_CONNECTION_URL

@@ -11,8 +11,8 @@ import dotenv from "dotenv";
 import User from "./models/User.js";
 import Department from "./models/Department.js";
 
-import scrapeImages from "./utils/ScrapeImages.js";
-import setMock from "./utils/SetMock.js";
+import { scrapeImages } from "./utils/ScrapeImages.js";
+import { setMock } from "./utils/SetMock.js";
 
 dotenv.config();
 

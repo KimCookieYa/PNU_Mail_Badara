@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 
-export default async function scrapeImages(url) {
+export async function scrapeImages(url) {
   try {
     const res = await axios.get(url);
     const html = res.data;
