@@ -217,7 +217,7 @@ app.listen(PORT, () => {
 });
 
 // cron job at 18:00
-cron.schedule("0 * * * * *", () => {
+cron.schedule("* 3,12 * * *", () => {
   console.log("[Cron] Fetching RSS data.");
   Department.find({}).then((departments) => {
     if (departments.length === 0) {
