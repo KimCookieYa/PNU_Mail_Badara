@@ -132,7 +132,8 @@ app.get("/api/user/validation/:email", async (req, res) => {
   }
 
   // check if email exist in database
-  if (await isExistingEmail(email)) {
+  const existingEmail = await isExistingEmail(email);
+  if (existingEmail) {
     res.status(500).json({
       type: "ERROR",
       message: "Your email already exists in the database.",
