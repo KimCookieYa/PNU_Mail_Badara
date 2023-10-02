@@ -66,6 +66,17 @@ function Main() {
   const handleUnsubscribe = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
+    // Email Validation
+    if (
+      !email ||
+      !email.includes("@") ||
+      !email.includes(".") ||
+      email.split("@")[0].length < 5
+    ) {
+      alert("[Error] Invalid Email");
+      return;
+    }
+
     axios
       .delete(`/api/user/unsubscribe/${email}`)
       .then((res: Response) => {
