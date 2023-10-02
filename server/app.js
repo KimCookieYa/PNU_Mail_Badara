@@ -64,6 +64,8 @@ app.post("/api/user/subscribe", async (req, res) => {
     });
   }
 
+  // TODO: check waiting queue.
+
   try {
     // check email validation.
     await sendEmailValidation(global.transporter, email);
@@ -72,7 +74,7 @@ app.post("/api/user/subscribe", async (req, res) => {
       department_code: department,
       start_time: startTime,
     };
-    console.log(`[Subscribe] ${startTime}: ${email}-${department}`);
+    console.log(`[Subscribing] ${email}:${department} (${startTime})`);
     res.json({
       type: "SUCCESS",
       message: `이메일 검증을 위해 귀하(${email})의 메일함을 확인해주시기 바랍니다:)`,
@@ -197,7 +199,8 @@ app.listen(PORT, () => {
 
 // cron job at 10:00, 19:00 on Korea.
 cron.schedule("* 3,12 * * *", () => {
-  console.log("[Cron] Fetching RSS data.");
+  const now = new Date();
+  console.log(`[Cron] Fetching RSS data (${now}).`);
   Department.find({}).then((departments) => {
     if (departments.length === 0) {
       console.log("[Cron] Department is nothing.");
