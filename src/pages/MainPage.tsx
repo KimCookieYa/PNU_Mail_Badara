@@ -107,7 +107,7 @@ function Main() {
 
   return (
     <>
-      <div className="flex items-center justify-center min-h-screen gap-4">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4 lg:flex-row xl:flex-row">
         <Title />
         <div className="flex flex-col mt-24 space-y-2">
           <select
