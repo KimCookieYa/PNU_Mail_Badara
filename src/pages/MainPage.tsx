@@ -31,7 +31,7 @@ function Main() {
     return false;
   };
 
-  const isValidated = (email: string) => {
+  const isValid = (email: string) => {
     if (
       email &&
       email.includes("@") &&
@@ -41,7 +41,7 @@ function Main() {
       return true;
     }
     alert("[Error] Invalid Email");
-    return true;
+    return false;
   };
 
   useEffect(() => {
@@ -60,7 +60,7 @@ function Main() {
     e.preventDefault();
 
     // Email && Check Validation
-    if (!isValidated(email) || !isChecked()) {
+    if (!isValid(email) || !isChecked()) {
       return;
     }
 
@@ -85,7 +85,7 @@ function Main() {
     e.preventDefault();
 
     // Email Validation
-    if (!isValidated(email)) {
+    if (!isValid(email)) {
       return;
     }
 
