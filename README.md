@@ -1,3 +1,3 @@
-# PNU_Mail_Badara
+# Mail_Badara
 
-PNU 메일 받아라
+메일 받아라
