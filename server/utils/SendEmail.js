@@ -1,8 +1,9 @@
 import User from "../models/User.js";
 
+// send email for all in department.
 export async function sendEmail(transporter, messages, department) {
-  console.log("Sending email for All...");
-  //console.log(messages);
+  console.log(`Sending email for All in ${department.name}...`);
+
   const values = Object.values(messages);
   const condition = Array.from({ length: values.length }, (_, idx) => ({
     [`latest_post_indexs.${idx}`]: { $lt: values[idx].latestPostIndex },
@@ -28,6 +29,7 @@ export async function sendEmail(transporter, messages, department) {
     });
 }
 
+// send email for one user.
 async function sendEmailFor(transporter, user, messages, department) {
   let count = 0;
   let boardIdx = 0;
@@ -70,7 +72,7 @@ async function sendEmailFor(transporter, user, messages, department) {
       : process.env.DEVELOPMENT_URL
   }">Unsubscribe</a>`;
 
-  // if there is no new post, return
+  // if there is no new post, return.
   if (count === 0) {
     return;
   }
@@ -94,7 +96,7 @@ async function sendEmailFor(transporter, user, messages, department) {
   }
 }
 
-// send email validation
+// send email validation.
 export async function sendEmailValidation(transporter, email) {
   const mailOptions = {
     from: process.env.APP_NAME,

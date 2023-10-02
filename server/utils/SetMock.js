@@ -4,6 +4,7 @@ import User from "../models/User.js";
 import { mockDepartments } from "../utils/DepartmentData.js";
 import { mockUsers } from "../utils/UserData.js";
 
+// connect to database and set Mock.
 export async function setMock() {
   const CONNECTION_URL =
     process.env.NODE_ENV === "production"

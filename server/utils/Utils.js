@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 
+// check whether the email is valid.
 export function isValid(email) {
   return (
     email &&
@@ -9,7 +10,7 @@ export function isValid(email) {
   );
 }
 
-// check whether the email exists in the database
+// check whether the email exists in the database.
 export async function isExistingEmail(email) {
   return await User.findOne({ email: email });
 }

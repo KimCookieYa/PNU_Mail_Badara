@@ -19,7 +19,7 @@ import { isValid, isExistingEmail, isExpired } from "./utils/Utils.js";
 dotenv.config();
 global.waitingQueue = {};
 
-// create email transporter
+// create email transporter.
 global.transporter = nodemailer.createTransport({
   service: "gmail",
   host: "smtp.gmail.com",
@@ -35,19 +35,19 @@ const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.NODE_ENV === "production" ? process.env.PORT : 3000;
 
-// Connect to MongoDB and Set Mock
+// connect to database and set Mock.
 await setMock();
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "../dist")));
 
-// serve React
+// serve react.
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
-// email subscribe endpoint
+// Endpoint: Email Subscribe
 app.post("/api/user/subscribe", async (req, res) => {
   const { email, department } = req.body;
 
@@ -55,7 +55,7 @@ app.post("/api/user/subscribe", async (req, res) => {
     return res.json({ type: "ERROR", message: "Invalid email." });
   }
 
-  // check subscribed
+  // check if email already subscribed.
   const existingEmail = await isExistingEmail(email);
   if (existingEmail) {
     return res.json({
@@ -72,21 +72,22 @@ app.post("/api/user/subscribe", async (req, res) => {
       department_code: department,
       start_time: startTime,
     };
+    console.log(`[Subscribe] ${startTime}: ${email}-${department}`);
     res.json({
       type: "SUCCESS",
       message: `이메일 검증을 위해 귀하(${email})의 메일함을 확인해주시기 바랍니다:)`,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ type: "ERROR", message: "Server error!" });
+    res.status(501).json({ type: "ERROR", message: "Server error!" });
   }
 });
 
-// email validation endpoint
+// Endpoint: Email Validation
 app.get("/api/user/validation/:email", async (req, res) => {
   const { email } = req.params;
 
-  // check if email exist in waiting queue
+  // check if email exist in waiting queue.
   if (!(email in global.waitingQueue)) {
     res.status(500).json({
       type: "ERROR",
@@ -94,7 +95,7 @@ app.get("/api/user/validation/:email", async (req, res) => {
     });
   }
 
-  // check if email validation is expired
+  // check if email validation is expired.
   if (isExpired(global.waitingQueue[email].start_time)) {
     delete global.waitingQueue[email];
     res.status(500).json({
@@ -103,7 +104,7 @@ app.get("/api/user/validation/:email", async (req, res) => {
     });
   }
 
-  // check if email exist in database
+  // check if email exist in database.
   const existingEmail = await isExistingEmail(email);
   if (existingEmail) {
     res.status(500).json({
@@ -117,7 +118,7 @@ app.get("/api/user/validation/:email", async (req, res) => {
   });
 
   try {
-    // save email to MongoDB
+    // save email to MongoDB.
     const newEmail = new User({
       email: email,
       department_code: department.code,
@@ -133,11 +134,11 @@ app.get("/api/user/validation/:email", async (req, res) => {
     );
   } catch (error) {
     console.error(error);
-    res.status(500).json({ type: "ERROR", message: "Server error!" });
+    res.status(502).json({ type: "ERROR", message: "Server error!" });
   }
 });
 
-// email delete endpoint
+// Endpoint: Email Delete
 app.delete("/api/user/unsubscribe/:email", async (req, res) => {
   const { email } = req.params;
 
@@ -145,35 +146,27 @@ app.delete("/api/user/unsubscribe/:email", async (req, res) => {
     return res.json({ type: "ERROR", message: "Invalid email." });
   }
 
-  // check subscribed
-  const existingEmail = await isExistingEmail(email);
-  console.log(existingEmail);
-  if (!existingEmail) {
-    return res.json({
-      type: "NONE",
-      message: `${email} is not subscribed.`,
-    });
-  }
-
   try {
-    // check subscribed
-    const temp = await User.findOne({ email });
-    if (!temp) {
+    // check if email already subscribed.
+    const existingEmail = await isExistingEmail(email);
+    console.log(existingEmail);
+    if (!existingEmail) {
       return res.json({
         type: "NONE",
-        message: "Not subscribed.",
+        message: `${email} is not subscribed.`,
       });
     }
-    // 이메일을 MongoDB에서 삭제
+
+    // delete email in database.
     await User.deleteOne({ email });
     res.json({ type: "SUCCESS", message: "Delete user information" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ type: "ERROR", message: "Server error!" });
+    res.status(503).json({ type: "ERROR", message: "Server error!" });
   }
 });
 
-// department endpoint
+// Endpoint: Get Department
 app.get("/api/department", async (req, res) => {
   try {
     const departments = await Department.find({}, "code name");
@@ -182,7 +175,6 @@ app.get("/api/department", async (req, res) => {
       data[department.code] = department.name;
     }
 
-    console.log("Get department list.");
     res.json({
       type: "SUCCESS",
       message: "Get department list.",
@@ -190,10 +182,11 @@ app.get("/api/department", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ type: "ERROR", message: "Server error" });
+    res.status(504).json({ type: "ERROR", message: "Server error" });
   }
 });
 
+// Endpoint: React Routing
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
@@ -202,7 +195,7 @@ app.listen(PORT, () => {
   console.log("[Running] Server is running on port", PORT);
 });
 
-// cron job at 18:00
+// cron job at 10:00, 19:00 on Korea.
 cron.schedule("* 3,12 * * *", () => {
   console.log("[Cron] Fetching RSS data.");
   Department.find({}).then((departments) => {
@@ -227,14 +220,15 @@ cron.schedule("* 3,12 * * *", () => {
           if (res.status === 200) {
             const xmlData = res.data;
 
-            // XML 파싱
+            // parse xml data.
             const result = await xml2js.parseStringPromise(xmlData);
 
-            // <item> 태그 내의 정보 가져오기
+            // get <item> data.
             const items = result.rss.channel[0].item.splice(0, 3);
             const message = {};
             let latestPostIndex = -1;
-            // 각 아이템 정보 출력
+
+            // print item data.
             for (const item of items) {
               const postIdx = item.link[0].split("/")[6];
               if (Number(postIdx) > latestPostIndex) {
@@ -267,7 +261,7 @@ cron.schedule("* 3,12 * * *", () => {
     });
   });
 
-  // delete expired e-mails from the waiting list
+  // delete expired e-mails from the waiting list.
   console.log("[Cron] Deleting expired e-mails.");
   Object.keys(global.waitingQueue).forEach((email) => {
     if (isExpired(global.waitingQueue[email].start_time)) {
