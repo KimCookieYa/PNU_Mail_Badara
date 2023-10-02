@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Title from "../components/Title";
 
@@ -16,9 +16,31 @@ type DepartmentList = {
 
 function Main() {
   const [email, setEmail] = useState<string>("");
-  const [departmentList, setDepartmentList] = useState<DepartmentList>({});
+  const [departmentList, setDepartmentList] = useState<DepartmentList>({
+    cse: "정보컴퓨터공학부",
+  });
   const [selectedDepartment, setSelectedDepartment] =
     useState<string>("정보컴퓨터공학부");
+  const checkboxRef = useRef<HTMLInputElement | null>(null);
+
+  const isNotValidated = (email: string) => {
+    if (
+      !email ||
+      !email.includes("@") ||
+      !email.includes(".") ||
+      email.split("@")[0].length < 5
+    ) {
+      alert("[Error] Invalid Email");
+      return false;
+    }
+
+    if (!checkboxRef.current?.checked) {
+      alert("[Error] 개인정보수집에 동의해주세요.");
+      return false;
+    }
+
+    return true;
+  };
 
   useEffect(() => {
     const fetch = async () => {
@@ -36,13 +58,7 @@ function Main() {
     e.preventDefault();
 
     // Email Validation
-    if (
-      !email ||
-      !email.includes("@") ||
-      !email.includes(".") ||
-      email.split("@")[0].length < 5
-    ) {
-      alert("[Error] Invalid Email");
+    if (isNotValidated(email)) {
       return;
     }
 
@@ -67,13 +83,7 @@ function Main() {
     e.preventDefault();
 
     // Email Validation
-    if (
-      !email ||
-      !email.includes("@") ||
-      !email.includes(".") ||
-      email.split("@")[0].length < 5
-    ) {
-      alert("[Error] Invalid Email");
+    if (isNotValidated(email)) {
       return;
     }
 
@@ -94,9 +104,9 @@ function Main() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen gap-4">
-      <Title />
-      <div className="space-y-2">
+    <>
+      <div className="flex items-center justify-center min-h-screen gap-4">
+        <Title />
         <div className="flex flex-col space-y-2">
           <select
             className="border border-black "
@@ -118,23 +128,32 @@ function Main() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-        </div>
-        <div className="flex space-x-2">
-          <button
-            onClick={handleSubscribe}
-            className="px-4 py-2 text-white bg-black"
-          >
-            Subscribe
-          </button>
-          <button
-            onClick={handleUnsubscribe}
-            className="px-4 py-2 text-white bg-gray-500"
-          >
-            Unsubscribe
-          </button>
+          <div className="flex space-x-2">
+            <button
+              onClick={handleSubscribe}
+              className="px-4 py-2 text-white bg-black"
+            >
+              Subscribe
+            </button>
+            <button
+              onClick={handleUnsubscribe}
+              className="px-4 py-2 text-white bg-gray-500"
+            >
+              Unsubscribe
+            </button>
+          </div>
+          <label>
+            <input
+              ref={checkboxRef}
+              type="checkbox"
+              name="개인정보수집제공동의"
+              value="개인정보수집제공동의"
+            />{" "}
+            개인정보수집제공동의
+          </label>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
