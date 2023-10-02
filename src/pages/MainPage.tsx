@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import Title from "../components/Title";
+import { isValid } from "../utils/Email";
 
 type Response = {
   data: {
@@ -24,24 +25,7 @@ function Main() {
   const checkboxRef = useRef<HTMLInputElement | null>(null);
 
   const isChecked = () => {
-    if (checkboxRef.current?.checked) {
-      return true;
-    }
-    alert("[Error] 개인정보수집에 동의해주세요.");
-    return false;
-  };
-
-  const isValid = (email: string) => {
-    if (
-      email &&
-      email.includes("@") &&
-      email.includes(".") &&
-      email.split("@")[0].length >= 5
-    ) {
-      return true;
-    }
-    alert("[Error] Invalid Email");
-    return false;
+    return checkboxRef.current?.checked;
   };
 
   useEffect(() => {
@@ -59,8 +43,15 @@ function Main() {
   const handleSubscribe = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    // Email && Check Validation
-    if (!isValid(email) || !isChecked()) {
+    // Email Validation
+    if (!isValid(email)) {
+      alert("[Error] Invalid Email");
+      return;
+    }
+
+    // Check Checkbox
+    if (!isChecked()) {
+      alert("[Error] 개인정보 수집에 동의해주세요.");
       return;
     }
 
@@ -68,6 +59,7 @@ function Main() {
       (key) => departmentList[key] === selectedDepartment
     )[0];
 
+    // TODO: alert가 뜰 때까지 로딩 표시.
     axios
       .post("/api/user/subscribe", {
         email,
@@ -86,6 +78,7 @@ function Main() {
 
     // Email Validation
     if (!isValid(email)) {
+      alert("[Error] Invalid Email");
       return;
     }
 

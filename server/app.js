@@ -13,7 +13,7 @@ import Department from "./models/Department.js";
 
 import { scrapeImages } from "./utils/ScrapeImages.js";
 import { setMock } from "./utils/SetMock.js";
-import { sendEmailValidation } from "./utils/SendEmail.js";
+import { sendEmail, sendEmailValidation } from "./utils/SendEmail.js";
 import { isValid, isExistingEmail, isExpired } from "./utils/Utils.js";
 
 dotenv.config();
@@ -151,7 +151,6 @@ app.delete("/api/user/unsubscribe/:email", async (req, res) => {
   try {
     // check if email already subscribed.
     const existingEmail = await isExistingEmail(email);
-    console.log(existingEmail);
     if (!existingEmail) {
       return res.json({
         type: "NONE",
@@ -198,7 +197,7 @@ app.listen(PORT, () => {
 });
 
 // cron job at 10:00, 19:00 on Korea.
-cron.schedule("* 3,12 * * *", () => {
+cron.schedule("0 3,12 * * *", () => {
   const now = new Date();
   console.log(`[Cron] Fetching RSS data (${now}).`);
   Department.find({}).then((departments) => {

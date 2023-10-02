@@ -14,6 +14,7 @@ export async function sendEmail(transporter, messages, department) {
   if (condition.length > 0) {
     query.$or = condition;
   }
+
   await User.find(query)
     .then((users) => {
       if (users.length === 0) {
