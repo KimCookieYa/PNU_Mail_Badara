@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Title from "../components/Title";
 
 type Response = {
   data: {
@@ -82,37 +83,41 @@ function Main() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="p-8 space-y-2 bg-white rounded-lg shadow-lg">
-        <select
-          value={departmentList[selectedDepartment]}
-          onChange={handleSelectedDepartment}
-        >
-          {Object.keys(departmentList).map((key) => {
-            return (
-              <option key={key} value={departmentList[key]}>
-                {departmentList[key]}
-              </option>
-            );
-          })}
-        </select>
-        <div className="flex space-x-2">
+    <div className="flex items-center justify-center min-h-screen gap-4">
+      <Title />
+      <div className="space-y-2">
+        <div className="flex flex-col space-y-2">
+          <select
+            className="border border-black "
+            value={departmentList[selectedDepartment]}
+            onChange={handleSelectedDepartment}
+          >
+            {Object.keys(departmentList).map((key) => {
+              return (
+                <option key={key} value={departmentList[key]}>
+                  {departmentList[key]}
+                </option>
+              );
+            })}
+          </select>
           <input
             type="email"
             placeholder="Email"
-            className="flex-grow px-3 py-2 border rounded-md"
+            className="flex-grow px-3 py-2 border border-gray-300 rounded"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
+        </div>
+        <div className="flex space-x-2">
           <button
             onClick={handleSubscribe}
-            className="px-4 py-2 text-white bg-blue-500 rounded-md"
+            className="px-4 py-2 text-white bg-black"
           >
             Subscribe
           </button>
           <button
             onClick={handleUnsubscribe}
-            className="px-4 py-2 text-white bg-red-500 rounded-md"
+            className="px-4 py-2 text-white bg-gray-500"
           >
             Unsubscribe
           </button>

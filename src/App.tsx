@@ -2,8 +2,8 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import MainPage from "./pages/MainPage";
 import ErrorPage from "./pages/ErrorPage";
-import NavBar from "./components/NavBar";
 import ValidationPage from "./pages/ValidationPage";
+import ParticlesBackground from "./components/ParticlesBackground";
 
 const router = createBrowserRouter([
   {
@@ -21,7 +21,7 @@ const router = createBrowserRouter([
 function App() {
   return (
     <>
-      <NavBar />
+      <ParticlesBackground />
       <RouterProvider router={router} />
     </>
   );
