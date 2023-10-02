@@ -78,9 +78,9 @@ async function sendEmailFor(transporter, user, messages, department) {
   }
 
   const mailOptions = {
-    from: process.env.APP_NAME,
+    from: process.env.APP_TITLE,
     to: user.email,
-    subject: `[${process.env.APP_NAME}] ${department.name}에서 ${count}개의 새 소식이 왔습니다!`,
+    subject: `[${process.env.APP_TITLE}] ${department.name}에서 ${count}개의 새 소식이 왔습니다!`,
     html: content,
   };
 
@@ -99,9 +99,9 @@ async function sendEmailFor(transporter, user, messages, department) {
 // send email validation.
 export async function sendEmailValidation(transporter, email) {
   const mailOptions = {
-    from: process.env.APP_NAME,
+    from: process.env.APP_TITLE,
     to: email,
-    subject: `[${process.env.APP_NAME}] 이메일 검증 안내`,
+    subject: `[${process.env.APP_TITLE}] 이메일 검증 안내`,
     html: `<div style="display: flex; flex-direction: column; gap: 10px">
                 다음 버튼을 눌러 최종적으로 메일을 검증해주시기 바랍니다.
                 <a href="${
