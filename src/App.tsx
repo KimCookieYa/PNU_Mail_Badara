@@ -4,6 +4,7 @@ import MainPage from "./pages/MainPage";
 import ErrorPage from "./pages/ErrorPage";
 import ValidationPage from "./pages/ValidationPage";
 import ParticlesBackground from "./components/ParticlesBackground";
+import BottomBar from "./components/BottomBar";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,7 @@ function App() {
   return (
     <>
       <ParticlesBackground />
+      <BottomBar />
       <RouterProvider router={router} />
     </>
   );

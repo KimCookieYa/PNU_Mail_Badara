@@ -23,22 +23,24 @@ function Main() {
     useState<string>("정보컴퓨터공학부");
   const checkboxRef = useRef<HTMLInputElement | null>(null);
 
-  const isNotValidated = (email: string) => {
+  const isChecked = () => {
+    if (checkboxRef.current?.checked) {
+      return true;
+    }
+    alert("[Error] 개인정보수집에 동의해주세요.");
+    return false;
+  };
+
+  const isValidated = (email: string) => {
     if (
-      !email ||
-      !email.includes("@") ||
-      !email.includes(".") ||
-      email.split("@")[0].length < 5
+      email &&
+      email.includes("@") &&
+      email.includes(".") &&
+      email.split("@")[0].length >= 5
     ) {
-      alert("[Error] Invalid Email");
-      return false;
+      return true;
     }
-
-    if (!checkboxRef.current?.checked) {
-      alert("[Error] 개인정보수집에 동의해주세요.");
-      return false;
-    }
-
+    alert("[Error] Invalid Email");
     return true;
   };
 
@@ -57,8 +59,8 @@ function Main() {
   const handleSubscribe = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
-    // Email Validation
-    if (isNotValidated(email)) {
+    // Email && Check Validation
+    if (!isValidated(email) || !isChecked()) {
       return;
     }
 
@@ -83,7 +85,7 @@ function Main() {
     e.preventDefault();
 
     // Email Validation
-    if (isNotValidated(email)) {
+    if (!isValidated(email)) {
       return;
     }
 
@@ -107,7 +109,7 @@ function Main() {
     <>
       <div className="flex items-center justify-center min-h-screen gap-4">
         <Title />
-        <div className="flex flex-col space-y-2">
+        <div className="flex flex-col mt-24 space-y-2">
           <select
             className="border border-black "
             value={departmentList[selectedDepartment]}
