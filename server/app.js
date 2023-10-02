@@ -105,7 +105,8 @@ app.post("/api/user/subscribe", async (req, res) => {
 });
 
 // check whether the email verification period(10min) has expired.
-function isExpired(startTime, endTime) {
+function isExpired(startTime) {
+  const endTime = new Date();
   const diff = endTime.getTime() - startTime.getTime();
   return diff > 1000 * 60 * 10;
 }
@@ -123,7 +124,7 @@ app.get("/api/user/validation/:email", async (req, res) => {
   }
 
   // check if email validation is expired
-  if (isExpired(global.waitingQueue[email].start_time, new Date())) {
+  if (isExpired(global.waitingQueue[email].start_time)) {
     delete global.waitingQueue[email];
     res.status(500).json({
       type: "ERROR",
@@ -284,7 +285,7 @@ cron.schedule("* 3,12 * * *", () => {
   // delete expired e-mails from the waiting list
   console.log("[Cron] Deleting expired e-mails.");
   Object.keys(global.waitingQueue).forEach((email) => {
-    if (isExpired(global.waitingQueue[email].start_time, new Date())) {
+    if (isExpired(global.waitingQueue[email].start_time)) {
       console.log("[Cron] Expired e-mail: ", email);
       delete global.waitingQueue[email];
     }
