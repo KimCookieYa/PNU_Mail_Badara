@@ -15,6 +15,10 @@ const UserSchema = new Schema({
     required: true,
     default: "cse",
   },
+  subscribe_time: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 export default mongoose.model("User", UserSchema);

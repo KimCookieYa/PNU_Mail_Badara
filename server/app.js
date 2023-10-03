@@ -127,6 +127,7 @@ app.get("/api/user/validation/:email", async (req, res) => {
       email: email,
       department_code: department.code,
       latest_post_indexs: Array(department.boards.length).fill(-1),
+      subscribe_time: new Date(),
     });
     await newEmail.save();
     res.redirect(
