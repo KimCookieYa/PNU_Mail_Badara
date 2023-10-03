@@ -17,7 +17,7 @@ const UserSchema = new Schema({
   },
   subscribe_time: {
     type: Date,
-    default: Date.now,
+    default: Date.now(),
   },
 });
 
