@@ -36,7 +36,9 @@ const app = express();
 const PORT = process.env.NODE_ENV === "production" ? process.env.PORT : 3000;
 
 // connect to database and set Mock.
-await setMock();
+if (process.env.NODE_ENV !== "production") {
+  await setMock();
+}
 
 app.use(cors());
 app.use(bodyParser.json());
