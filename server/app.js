@@ -200,68 +200,72 @@ app.listen(PORT, () => {
 cron.schedule("0 3,12 * * *", () => {
   const now = new Date();
   console.log(`[Cron] Fetching RSS data (${now}).`);
-  Department.find({}).then((departments) => {
-    if (departments.length === 0) {
-      console.log("[Cron] Department is nothing.");
-      return;
-    }
-
-    departments.forEach(async (department) => {
-      if (department.boards.length === 0) {
-        console.log("[Cron] No RSS data for", department.code);
+  Department.find({})
+    .then((departments) => {
+      if (departments.length === 0) {
+        console.log("[Cron] Department is nothing.");
         return;
       }
 
-      const messages = {};
-      console.log("[Cron] Fetching RSS data for", department.code);
-
-      for (const [idx, board] of department.boards.entries()) {
-        const rssUrl = department.url + board + "/rssList.do?row=3";
-        try {
-          const res = await axios.get(rssUrl);
-          if (res.status === 200) {
-            const xmlData = res.data;
-
-            // parse xml data.
-            const result = await xml2js.parseStringPromise(xmlData);
-
-            // get <item> data.
-            const items = result.rss.channel[0].item.splice(0, 3);
-            const message = {};
-            let latestPostIndex = -1;
-
-            // print item data.
-            for (const item of items) {
-              const postIdx = item.link[0].split("/")[6];
-              if (Number(postIdx) > latestPostIndex) {
-                latestPostIndex = Number(postIdx);
-              }
-
-              const images = await scrapeImages(item.link[0]);
-
-              message[postIdx] = {
-                title: item.title[0],
-                images: images,
-                link: item.link[0],
-                pubDate: item.pubDate[0],
-              };
-            }
-            //console.log(message);
-            messages[department.board_names[idx]] = {
-              message,
-              latestPostIndex,
-            };
-          } else {
-            console.error("[Cron] Failed to fetch RSS data.");
-          }
-        } catch (error) {
-          console.error(error);
+      departments.forEach(async (department) => {
+        if (department.boards.length === 0) {
+          console.log("[Cron] No RSS data for", department.code);
+          return;
         }
-      }
 
-      await sendEmail(global.transporter, messages, department);
+        const messages = {};
+        console.log("[Cron] Fetching RSS data for", department.code);
+
+        for (const [idx, board] of department.boards.entries()) {
+          const rssUrl = department.url + board + "/rssList.do?row=3";
+          try {
+            const res = await axios.get(rssUrl);
+            if (res.status === 200) {
+              const xmlData = res.data;
+
+              // parse xml data.
+              const result = await xml2js.parseStringPromise(xmlData);
+
+              // get <item> data.
+              const items = result.rss.channel[0].item.splice(0, 3);
+              const message = {};
+              let latestPostIndex = -1;
+
+              // print item data.
+              for (const item of items) {
+                const postIdx = item.link[0].split("/")[6];
+                if (Number(postIdx) > latestPostIndex) {
+                  latestPostIndex = Number(postIdx);
+                }
+
+                const images = await scrapeImages(item.link[0]);
+
+                message[postIdx] = {
+                  title: item.title[0],
+                  images: images,
+                  link: item.link[0],
+                  pubDate: item.pubDate[0],
+                };
+              }
+              //console.log(message);
+              messages[department.board_names[idx]] = {
+                message,
+                latestPostIndex,
+              };
+            } else {
+              console.error("[Cron] Failed to fetch RSS data.");
+            }
+          } catch (error) {
+            console.error(error);
+          }
+        }
+
+        await sendEmail(global.transporter, messages, department);
+      });
+    })
+    .catch((error) => {
+      console.log(error);
     });
-  });
 
   // delete expired e-mails from the waiting list.
   console.log("[Cron] Deleting expired e-mails.");
