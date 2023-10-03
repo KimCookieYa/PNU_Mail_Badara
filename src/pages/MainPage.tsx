@@ -1,7 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
+
 import Title from "../components/Title";
 import { isValid } from "../utils/Email";
+import { mySuccessAlert, myErrorAlert, myWarningAlert } from "../utils/MyAlert";
 
 type Response = {
   data: {
@@ -45,13 +47,13 @@ function Main() {
 
     // Email Validation
     if (!isValid(email)) {
-      alert("[Error] Invalid Email");
+      myErrorAlert("[Error] Invalid Email");
       return;
     }
 
     // Check Checkbox
     if (!isChecked()) {
-      alert("[Error] 개인정보 수집에 동의해주세요.");
+      myErrorAlert("[Error] 개인정보 수집에 동의해주세요.");
       return;
     }
 
@@ -66,7 +68,13 @@ function Main() {
         department: selectedDepartmentCode,
       })
       .then((res: Response) => {
-        alert(`${res.data.type}: ${res.data.message}`);
+        if (res.data.type === "SUCCESS") {
+          mySuccessAlert(`${res.data.type}: ${res.data.message}`);
+        } else if (res.data.type === "ERROR") {
+          myErrorAlert(`${res.data.type}: ${res.data.message}`);
+        } else if (res.data.type === "NONE") {
+          myWarningAlert(`${res.data.type}: ${res.data.message}`);
+        }
       })
       .catch((error) => {
         console.error("ERROR:", error);
@@ -78,14 +86,20 @@ function Main() {
 
     // Email Validation
     if (!isValid(email)) {
-      alert("[Error] Invalid Email");
+      myErrorAlert("[Error] Invalid Email");
       return;
     }
 
     axios
       .delete(`/api/user/unsubscribe/${email}`)
       .then((res: Response) => {
-        alert(`${res.data.type}: ${res.data.message}`);
+        if (res.data.type === "SUCCESS") {
+          mySuccessAlert(`${res.data.type}: ${res.data.message}`);
+        } else if (res.data.type === "ERROR") {
+          myErrorAlert(`${res.data.type}: ${res.data.message}`);
+        } else if (res.data.type === "NONE") {
+          myWarningAlert(`${res.data.type}: ${res.data.message}`);
+        }
       })
       .catch((error) => {
         console.error("ERROR:", error);
