@@ -6,7 +6,7 @@ export async function sendEmail(transporter, messages, department) {
 
   const values = Object.values(messages);
   const condition = Array.from({ length: values.length }, (_, idx) => ({
-    [`latest_post_indexs.${idx}`]: { $lt: values[idx].latestPostIndex },
+    [`latest_post_indexs.${idx}`]: { $lt: values[idx].pastPostIndex },
   }));
   const query = {
     department_code: department.code,
@@ -21,8 +21,8 @@ export async function sendEmail(transporter, messages, department) {
         console.log(`All users of ${department.name} are latest.`);
         return;
       }
-      users.forEach((user) => {
-        sendEmailFor(transporter, user, messages, department);
+      users.forEach(async (user) => {
+        await sendEmailFor(transporter, user, messages, department);
       });
     })
     .catch((error) => {
@@ -40,16 +40,20 @@ async function sendEmailFor(transporter, user, messages, department) {
   for (const boardName of boardNames) {
     const message = messages[boardName];
     const postIdxs = Object.keys(message.message);
-    updatedLatestPostIndexs.push(message.latestPostIndex);
+    updatedLatestPostIndexs.push(
+      message.latestPostIndex === -1
+        ? user.latest_post_indexs[boardIdx]
+        : message.latestPostIndex
+    );
 
     content += `<br /><br />
                   <h1>[${department.name}] ${boardName}</h1>
                   <div style="background-color: black; width: 40vw; height: 3px"/>`;
-    let latestPostIndexs = user.latest_post_indexs;
+    let pastPostIndexs = user.latest_post_indexs;
 
     for (const postIdx of postIdxs) {
       const postIndex = Number(postIdx);
-      if (postIndex > latestPostIndexs[boardIdx]) {
+      if (postIndex > pastPostIndexs[boardIdx]) {
         content += `<div style='display: flex; flex-direction: column; margin: 10px'>
                         <p>제목:
                           <a href="${message.message[postIndex].link}">

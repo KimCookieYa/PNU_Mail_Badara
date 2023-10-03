@@ -201,13 +201,13 @@ cron.schedule("0 1,10 * * *", () => {
   const now = new Date();
   console.log(`[Cron] Fetching RSS data (${now}).`);
   Department.find({})
-    .then((departments) => {
+    .then(async (departments) => {
       if (departments.length === 0) {
         console.log("[Cron] Department is nothing.");
         return;
       }
 
-      departments.forEach(async (department) => {
+      for (const department of departments) {
         if (department.boards.length === 0) {
           console.log("[Cron] No RSS data for", department.code);
           return;
@@ -230,10 +230,14 @@ cron.schedule("0 1,10 * * *", () => {
               const items = result.rss.channel[0].item.splice(0, 3);
               const message = {};
               let latestPostIndex = -1;
+              let pastPostIndex = 1000000000;
 
               // print item data.
               for (const item of items) {
                 const postIdx = item.link[0].split("/")[6];
+                if (Number(postIdx) < pastPostIndex) {
+                  pastPostIndex = Number(postIdx);
+                }
                 if (Number(postIdx) > latestPostIndex) {
                   latestPostIndex = Number(postIdx);
                 }
@@ -251,17 +255,30 @@ cron.schedule("0 1,10 * * *", () => {
               messages[department.board_names[idx]] = {
                 message,
                 latestPostIndex,
+                pastPostIndex,
               };
             } else {
-              console.error("[Cron] Failed to fetch RSS data.");
+              console.error("[Cron] Failed to fetch RSS data.".res);
+              // trash value
+              messages[department.board_names[idx]] = {
+                message: {},
+                latestPostIndex: -1,
+                pastPostIndex: 1000000000,
+              };
             }
           } catch (error) {
             console.error(error);
+            // trash value
+            messages[department.board_names[idx]] = {
+              message: {},
+              latestPostIndex: -1,
+              pastPostIndex: 1000000000,
+            };
           }
         }
 
         await sendEmail(global.transporter, messages, department);
-      });
+      }
     })
     .catch((error) => {
       console.log(error);
