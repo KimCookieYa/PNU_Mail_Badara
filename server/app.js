@@ -64,8 +64,6 @@ app.post("/api/user/subscribe", async (req, res) => {
     });
   }
 
-  // TODO: check waiting queue.
-
   try {
     // check email validation.
     await sendEmailValidation(global.transporter, email);
