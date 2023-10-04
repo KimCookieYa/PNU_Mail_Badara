@@ -3,7 +3,7 @@ import User from "../models/User.js";
 // check whether the email is valid.
 export function isValid(email) {
   return (
-    email &&
+    email.length > 0 &&
     email.includes("@") &&
     email.includes(".") &&
     email.split("@")[0].length >= 5
