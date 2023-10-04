@@ -188,6 +188,35 @@ app.get("/api/department", async (req, res) => {
   }
 });
 
+// Endpoint: Check whether email exists in database.
+app.get("/api/email/existence", async (req, res) => {
+  const { email } = req.query;
+
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      res.json({
+        type: "SUCCESS",
+        message: email + " exists in db.",
+        data: { exist: true },
+      });
+    } else {
+      res.json({
+        type: "ERROR",
+        message: email + " doesn't exist in db.",
+        data: { exist: false },
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(505).json({
+      type: "ERROR",
+      message: "Server error",
+      data: { exist: false },
+    });
+  }
+});
+
 // Endpoint: React Routing
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
