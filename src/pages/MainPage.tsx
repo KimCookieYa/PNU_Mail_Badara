@@ -63,7 +63,6 @@ function Main() {
       (key) => departmentList[key] === selectedDepartment
     )[0];
 
-    // TODO: alert가 뜰 때까지 로딩 표시.
     setLoading(true);
     axios
       .post("/api/user/subscribe", {
