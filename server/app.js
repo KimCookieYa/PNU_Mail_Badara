@@ -245,7 +245,7 @@ cron.schedule("0 1,10 * * *", () => {
         console.log("[Cron] Fetching RSS data for", department.code);
 
         for (const [idx, board] of department.boards.entries()) {
-          const rssUrl = department.url + board + "/rssList.do?row=3";
+          const rssUrl = department.url + board + "/rssList.do?row=5";
           try {
             const res = await axios.get(rssUrl);
             if (res.status === 200) {
