@@ -225,7 +225,7 @@ app.listen(PORT, () => {
 });
 
 // cron job at 10:00, 19:00 on Korea.
-cron.schedule("0 1,10 * * *", () => {
+cron.schedule("0 1,6,10 * * *", () => {
   const now = new Date();
   console.log(`[Cron] Fetching RSS data (${now}).`);
   Department.find({})
