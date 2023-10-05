@@ -224,7 +224,7 @@ app.listen(PORT, () => {
   console.log("[Running] Server is running on port", PORT);
 });
 
-// cron job at 10:00, 19:00 on Korea.
+// cron job at 10:00, 15:00, 19:00 on Korea. 시차 9시간.
 cron.schedule("0 1,6,10 * * *", () => {
   const now = new Date();
   console.log(`[Cron] Fetching RSS data (${now}).`);
