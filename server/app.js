@@ -224,8 +224,8 @@ app.listen(PORT, () => {
   console.log("[Running] Server is running on port", PORT);
 });
 
-// cron job at 10:00, 15:00, 19:00 on Korea. 시차 9시간.
-cron.schedule("0 1,6,10 * * *", () => {
+// cron job at 11:00, 18:00 on Korea. 시차 9시간.
+cron.schedule("0 2,9 * * *", () => {
   const now = new Date();
   console.log(`[Cron] Fetching RSS data (${now}).`);
   Department.find({})
@@ -255,7 +255,7 @@ cron.schedule("0 1,6,10 * * *", () => {
               const result = await xml2js.parseStringPromise(xmlData);
 
               // get <item> data.
-              const items = result.rss.channel[0].item.splice(0, 3);
+              const items = result.rss.channel[0].item.splice(0, 5);
               const message = {};
               let latestPostIndex = -1;
               let pastPostIndex = 1000000000;
