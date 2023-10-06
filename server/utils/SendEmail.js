@@ -52,7 +52,7 @@ async function sendEmailFor(transporter, user, messages, department) {
     for (const postIdx of postIdxs) {
       const postIndex = Number(postIdx);
       if (postIndex > pastPostIndexs[boardIdx]) {
-        tempContent += `<div style='display: flex; flex-direction: column; margin: 10px'>
+        tempContent += `<div style='margin: 10px'>
                         <p>제목:
                           <a href="${message.message[postIndex].link}">
                             ${message.message[postIndex].title}
@@ -62,7 +62,9 @@ async function sendEmailFor(transporter, user, messages, department) {
                         </p>
                       </div>`;
         for (const img of message.message[postIndex].images) {
-          tempContent += `<div style="width: 60vw; height: 96vw; overflow: hidden"><img src="${img}" alt="image" style="width: 60vw; max-height: none; height: auto"></div>`;
+          tempContent += `<div style="width: 60vw; height: 85vw; overflow: hidden; max-width: 700px; max-height: 990px">
+                            <img src="${img}" alt="image" style="width: 60vw; height: auto; max-width: 700px; max-height: none;">
+                          </div>`;
         }
         count++;
       }
@@ -80,13 +82,17 @@ async function sendEmailFor(transporter, user, messages, department) {
       tempContent;
   }
   content =
-    "<div style='display: flex; flex-direction: column'>" +
+    "" +
     content +
-    `<a href="${
-      process.env.NODE_ENV === "production"
-        ? process.env.PRODUCTION_URL
-        : process.env.DEVELOPMENT_URL
-    }">Unsubscribe</a><div>`;
+    `</br></br></br>
+    <div style="background-color: black; width: 70vw; height: 3px"/>
+    <div style="text-align: center; margin: 20px">
+      <a href="${
+        process.env.NODE_ENV === "production"
+          ? process.env.PRODUCTION_URL
+          : process.env.DEVELOPMENT_URL
+      }">Unsubscribe</a>
+    </div>`;
 
   // if there is no new post, return.
   if (count === 0) {
@@ -118,8 +124,9 @@ export async function sendEmailValidation(transporter, email) {
     from: process.env.APP_TITLE,
     to: email,
     subject: `[${process.env.APP_TITLE}] 이메일 검증 안내`,
-    html: `<div style="display: flex; flex-direction: column; gap: 10px">
+    html: `<div style="gap: 10px">
                 다음 버튼을 눌러 최종적으로 메일을 검증해주시기 바랍니다.
+                </br>
                 <a href="${
                   process.env.NODE_ENV === "production"
                     ? process.env.PRODUCTION_URL
