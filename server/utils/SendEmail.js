@@ -62,7 +62,7 @@ async function sendEmailFor(transporter, user, messages, department) {
                         </p>
                       </div>`;
         for (const img of message.message[postIndex].images) {
-          content += `<img src="${img}" alt="image" style="width: 60vw">`;
+          tempContent += `<div style="width: 60vw; height: 96vw; overflow: hidden"><img src="${img}" alt="image" style="width: 60vw; max-height: none; height: auto"></div>`;
         }
         count++;
       }
@@ -79,11 +79,14 @@ async function sendEmailFor(transporter, user, messages, department) {
       <div style="background-color: black; width: 40vw; height: 3px"/>` +
       tempContent;
   }
-  content += `<a href="${
-    process.env.NODE_ENV === "production"
-      ? process.env.PRODUCTION_URL
-      : process.env.DEVELOPMENT_URL
-  }">Unsubscribe</a>`;
+  content =
+    "<div style='display: flex; flex-direction: column'>" +
+    content +
+    `<a href="${
+      process.env.NODE_ENV === "production"
+        ? process.env.PRODUCTION_URL
+        : process.env.DEVELOPMENT_URL
+    }">Unsubscribe</a><div>`;
 
   // if there is no new post, return.
   if (count === 0) {
