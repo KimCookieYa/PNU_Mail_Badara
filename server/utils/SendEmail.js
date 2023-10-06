@@ -6,7 +6,7 @@ export async function sendEmail(transporter, messages, department) {
 
   const values = Object.values(messages);
   const condition = Array.from({ length: values.length }, (_, idx) => ({
-    [`latest_post_indexs.${idx}`]: { $lt: values[idx].pastPostIndex },
+    [`latest_post_indexs.${idx}`]: { $lt: values[idx].latestPostIndex },
   }));
   const query = {
     department_code: department.code,
