@@ -1,30 +1,35 @@
-import "./App.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import MainPage from "./pages/MainPage";
-import ErrorPage from "./pages/ErrorPage";
-import ValidationPage from "./pages/ValidationPage";
-import ParticlesBackground from "./components/ParticlesBackground";
-import BottomBar from "./components/BottomBar";
+import { useRef } from "react";
+import { RouterProvider } from "react-router-dom";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <MainPage />,
-    errorElement: <ErrorPage />,
-  },
-  {
-    path: "/validation/:email",
-    element: <ValidationPage />,
-    errorElement: <ErrorPage />,
-  },
-]);
+import "./App.css";
+import { router } from "./pages/Router";
+import AboutPage from "./pages/AboutPage";
+import Header from "./components/Header";
+import ParticlesBackground from "./components/ParticlesBackground";
+import DetailPage from "./pages/DetailPage";
 
 function App() {
+  const mainRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
+
+  const refList = [mainRef, aboutRef, detailRef];
+
+  const moveToArtist = (index: number) => {
+    refList[index]?.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  };
+
   return (
     <>
       <ParticlesBackground />
-      <BottomBar />
-      <RouterProvider router={router} />
+      <Header moveToArtist={moveToArtist} />
+      <div ref={mainRef}>
+        <RouterProvider router={router} />
+      </div>
+      <AboutPage ref={aboutRef} />
+      <DetailPage ref={detailRef} />
     </>
   );
 }

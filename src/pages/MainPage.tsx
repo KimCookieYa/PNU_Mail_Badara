@@ -1,7 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 
-import Title from "../components/Title";
 import { isValid } from "../utils/Email";
 import { mySuccessAlert, myErrorAlert, myWarningAlert } from "../utils/MyAlert";
 import Loading from "../components/Loading";
@@ -18,7 +17,7 @@ type DepartmentList = {
   [key: string]: string;
 };
 
-function Main() {
+function MainPage() {
   const [email, setEmail] = useState<string>("");
   const [departmentList, setDepartmentList] = useState<DepartmentList>({
     cse: "정보컴퓨터공학부",
@@ -117,15 +116,14 @@ function Main() {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4 lg:flex-row xl:flex-row">
+      <div className="flex flex-col items-center justify-center w-full h-screen gap-4 lg:flex-row xl:flex-row">
         {loading ? (
           <Loading />
         ) : (
           <>
-            <Title />
             <div className="flex flex-col mt-24 space-y-2">
               <select
-                className="border border-black "
+                className="border border-black"
                 value={departmentList[selectedDepartment]}
                 onChange={handleSelectedDepartment}
               >
@@ -175,4 +173,4 @@ function Main() {
   );
 }
 
-export default Main;
+export default MainPage;

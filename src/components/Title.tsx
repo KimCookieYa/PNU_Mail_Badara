@@ -1,9 +1,11 @@
-function Title() {
+function Title({ onClick }: { onClick: () => void }) {
   return (
     <>
       <div className="p-4 text-white">
         <div className="container mx-auto">
-          <div className="text-5xl font-bold">Mail Badara</div>
+          <div className="text-4xl font-bold" onClick={onClick}>
+            Mail Badara
+          </div>
         </div>
       </div>
     </>
