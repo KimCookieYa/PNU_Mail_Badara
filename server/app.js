@@ -11,7 +11,7 @@ import nodemailer from "nodemailer";
 import User from "./models/User.js";
 import Department from "./models/Department.js";
 
-import { scrapeImages } from "./utils/ScrapeImages.js";
+import { scrapeFirstImage } from "./utils/ScrapeImages.js";
 import { setMock } from "./utils/SetMock.js";
 import { sendEmail, sendEmailValidation } from "./utils/SendEmail.js";
 import { isValid, isExistingEmail, isExpired } from "./utils/Utils.js";
@@ -270,7 +270,7 @@ cron.schedule("0 2,9 * * *", () => {
                   latestPostIndex = Number(postIdx);
                 }
 
-                const images = await scrapeImages(item.link[0]);
+                const images = await scrapeFirstImage(item.link[0]);
 
                 message[postIdx] = {
                   title: item.title[0],

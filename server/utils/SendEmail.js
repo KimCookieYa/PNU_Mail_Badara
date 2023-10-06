@@ -46,15 +46,13 @@ async function sendEmailFor(transporter, user, messages, department) {
         : message.latestPostIndex
     );
 
-    content += `<br /><br />
-                  <h1>[${department.name}] ${boardName}</h1>
-                  <div style="background-color: black; width: 40vw; height: 3px"/>`;
+    let tempContent = "";
     let pastPostIndexs = user.latest_post_indexs;
 
     for (const postIdx of postIdxs) {
       const postIndex = Number(postIdx);
       if (postIndex > pastPostIndexs[boardIdx]) {
-        content += `<div style='display: flex; flex-direction: column; margin: 10px'>
+        tempContent += `<div style='display: flex; flex-direction: column; margin: 10px'>
                         <p>제목:
                           <a href="${message.message[postIndex].link}">
                             ${message.message[postIndex].title}
@@ -69,7 +67,17 @@ async function sendEmailFor(transporter, user, messages, department) {
         count++;
       }
     }
+
     boardIdx++;
+    if (tempContent === "") {
+      continue;
+    }
+
+    content +=
+      `<br /><br />
+      <h1>[${department.name}] ${boardName}</h1>
+      <div style="background-color: black; width: 40vw; height: 3px"/>` +
+      tempContent;
   }
   content += `<a href="${
     process.env.NODE_ENV === "production"
