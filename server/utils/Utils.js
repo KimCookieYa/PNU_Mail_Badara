@@ -21,3 +21,26 @@ export function isExpired(startTime) {
   const diff = endTime.getTime() - startTime.getTime();
   return diff > 1000 * 60 * 10;
 }
+
+export function stringToDate(dateString) {
+  const dateParts = dateString.split(" ");
+
+  const datePart = dateParts[0];
+  const timePart = dateParts[1];
+
+  const [year, month, day] = datePart.split("-");
+  const [hours, minutes, seconds] = timePart.split(":");
+
+  const milliseconds = parseFloat(dateParts[2]);
+
+  const dateObject = new Date(
+    year,
+    month - 1,
+    day,
+    hours,
+    minutes,
+    seconds,
+    milliseconds
+  );
+  return dateObject;
+}

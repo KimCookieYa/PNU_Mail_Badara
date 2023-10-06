@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import { stringToDate } from "./Utils.js";
 
 // send email for all in department.
 export async function sendEmail(transporter, messages, department) {
@@ -37,6 +38,10 @@ async function sendEmailFor(transporter, user, messages, department) {
   let content = "";
   const boardNames = Object.keys(messages);
   const updatedLatestPostIndexs = [];
+
+  let startDate = undefined;
+  let endDate = undefined;
+
   for (const boardName of boardNames) {
     const message = messages[boardName];
     const postIdxs = Object.keys(message.message);
@@ -52,6 +57,19 @@ async function sendEmailFor(transporter, user, messages, department) {
     for (const postIdx of postIdxs) {
       const postIndex = Number(postIdx);
       if (postIndex > pastPostIndexs[boardIdx]) {
+        if (
+          startDate === undefined ||
+          startDate > stringToDate(message.message[postIdx].pubDate)
+        ) {
+          startDate = stringToDate(message.message[postIdx].pubDate);
+        }
+        if (
+          endDate === undefined ||
+          endDate < stringToDate(message.message[postIdx].pubDate)
+        ) {
+          endDate = stringToDate(message.message[postIdx].pubDate);
+        }
+
         tempContent += `<div style='margin: 10px'>
                         <p>제목:
                           <a href="${message.message[postIndex].link}">
@@ -95,14 +113,20 @@ async function sendEmailFor(transporter, user, messages, department) {
     </div>`;
 
   // if there is no new post, return.
-  if (count === 0) {
+  if (count === 0 || startDate === undefined || endDate === undefined) {
     return;
   }
 
   const mailOptions = {
     from: process.env.APP_TITLE,
     to: user.email,
-    subject: `[${process.env.APP_TITLE}] ${department.name}에서 ${count}개의 새 소식이 왔습니다!`,
+    subject: `[${process.env.APP_TITLE}][${startDate.getFullYear()}:${
+      startDate.getMonth() + 1
+    }:${startDate.getDate()}~${endDate.getFullYear()}:${
+      endDate.getMonth() + 1
+    }:${endDate.getDate()}] ${
+      department.name
+    }에서 ${count}개의 새 소식이 왔습니다!`,
     html: content,
   };
 
