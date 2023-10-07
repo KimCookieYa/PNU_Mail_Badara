@@ -11,7 +11,7 @@ import nodemailer from "nodemailer";
 import User from "./models/User.js";
 import Department from "./models/Department.js";
 
-import { scrapeFirstImage } from "./utils/ScrapeImages.js";
+import { scrapeNthImage } from "./utils/ScrapeImages.js";
 import { setMock } from "./utils/SetMock.js";
 import { sendEmail, sendEmailValidation } from "./utils/SendEmail.js";
 import { isValid, isExistingEmail, isExpired } from "./utils/Utils.js";
@@ -88,7 +88,10 @@ app.get("/api/user/validation/:email", async (req, res) => {
   const { email } = req.params;
 
   // check if email exist in waiting queue.
-  if (!(email in global.waitingQueue)) {
+  if (
+    !(email in global.waitingQueue) ||
+    global.waitingQueue[email] === undefined
+  ) {
     res.status(500).json({
       type: "ERROR",
       message: "Server error! Your email don't exist in waiting queue.",
@@ -237,17 +240,23 @@ cron.schedule("0 2,9 * * 1-5", () => {
 
       for (const department of departments) {
         if (department.boards.length === 0) {
-          console.log("[Cron] No RSS data for", department.code);
+          console.log("[Cron] No RSS data on", department.code);
           return;
         }
 
         const messages = {};
-        console.log("[Cron] Fetching RSS data for", department.code);
+        console.log("[Cron] Fetching RSS data on", department.code);
 
         for (const [idx, board] of department.boards.entries()) {
-          const rssUrl = department.url + board + "/rssList.do?row=5";
+          let rssUrl = department.url + board;
+          if (department.code.includes("snu")) {
+            rssUrl += "&keys=";
+          } else {
+            rssUrl += "/rssList.do?row=5";
+          }
+
           try {
-            const res = await axios.get(rssUrl);
+            const res = await axios.get(rssUrl, { timeout: 5000 });
             if (res.status === 200) {
               const xmlData = res.data;
 
@@ -262,7 +271,13 @@ cron.schedule("0 2,9 * * 1-5", () => {
 
               // print item data.
               for (const item of items) {
-                const postIdx = item.link[0].split("/")[6];
+                let postIdx = item.link[0].split("/")[6];
+                let imageIdx = 0;
+                if (department.code.includes("snu")) {
+                  postIdx = item.link[0].split("/")[4];
+                  imageIdx = 2;
+                }
+
                 if (Number(postIdx) < pastPostIndex) {
                   pastPostIndex = Number(postIdx);
                 }
@@ -270,7 +285,7 @@ cron.schedule("0 2,9 * * 1-5", () => {
                   latestPostIndex = Number(postIdx);
                 }
 
-                const images = await scrapeFirstImage(item.link[0]);
+                const images = await scrapeNthImage(item.link[0], imageIdx);
 
                 message[postIdx] = {
                   title: item.title[0],
@@ -306,6 +321,7 @@ cron.schedule("0 2,9 * * 1-5", () => {
         }
 
         await sendEmail(global.transporter, messages, department);
+        console.log("[Cron] Finished working on", department.code);
       }
     })
     .catch((error) => {
@@ -320,4 +336,5 @@ cron.schedule("0 2,9 * * 1-5", () => {
       delete global.waitingQueue[email];
     }
   });
+  console.log("[Cron] Finished working on deleting expired e-mails.");
 });

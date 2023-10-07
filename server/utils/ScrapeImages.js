@@ -21,21 +21,21 @@ export async function scrapeImages(url) {
   }
 }
 
-export async function scrapeFirstImage(url) {
+export async function scrapeNthImage(url, idx) {
   try {
     const res = await axios.get(url);
     const html = res.data;
     const $ = cheerio.load(html);
 
-    const firstImage = $("img:first-child").attr("src");
+    const nthImage = $(`img:nth-child(${idx})`).attr("src");
 
-    if (firstImage) {
-      return [firstImage];
+    if (nthImage && nthImage.includes(".ac.kr")) {
+      return [nthImage];
     } else {
       return [];
     }
   } catch (error) {
-    console.error(error);
+    console.error("[Scrapping] Failed to fetch image.", error);
     return [];
   }
 }

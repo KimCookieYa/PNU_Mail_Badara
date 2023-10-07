@@ -39,8 +39,8 @@ async function sendEmailFor(transporter, user, messages, department) {
   const boardNames = Object.keys(messages);
   const updatedLatestPostIndexs = [];
 
-  let startDate = undefined;
-  let endDate = undefined;
+  let startDate = null;
+  let endDate = null;
 
   for (const boardName of boardNames) {
     const message = messages[boardName];
@@ -57,17 +57,15 @@ async function sendEmailFor(transporter, user, messages, department) {
     for (const postIdx of postIdxs) {
       const postIndex = Number(postIdx);
       if (postIndex > pastPostIndexs[boardIdx]) {
-        if (
-          startDate === undefined ||
-          startDate > stringToDate(message.message[postIdx].pubDate)
-        ) {
-          startDate = stringToDate(message.message[postIdx].pubDate);
+        const tempDate = department.code.includes("snu")
+          ? new Date(message.message[postIdx].pubDate)
+          : stringToDate(message.message[postIdx].pubDate);
+        if (startDate === null || startDate > tempDate) {
+          startDate = tempDate;
         }
-        if (
-          endDate === undefined ||
-          endDate < stringToDate(message.message[postIdx].pubDate)
-        ) {
-          endDate = stringToDate(message.message[postIdx].pubDate);
+
+        if (endDate === null || endDate < tempDate) {
+          endDate = tempDate;
         }
 
         tempContent += `<div style='margin: 10px'>
@@ -117,21 +115,26 @@ async function sendEmailFor(transporter, user, messages, department) {
     return;
   }
 
-  const dateString =
-    startDate.getDate() === endDate.getDate()
-      ? `${startDate.getFullYear()}-${
-          startDate.getMonth() + 1
-        }-${startDate.getDate()}`
-      : `${startDate.getFullYear()}-${
-          startDate.getMonth() + 1
-        }-${startDate.getDate()}~${endDate.getFullYear()}-${
-          endDate.getMonth() + 1
-        }-${endDate.getDate()}`;
+  let dateString = "";
+
+  if (startDate !== null && endDate !== null) {
+    dateString =
+      startDate.getMonth() === endDate.getMonth() &&
+      startDate.getDate() === endDate.getDate()
+        ? `[${endDate.getFullYear()}-${
+            endDate.getMonth() + 1
+          }-${endDate.getDate()}]`
+        : `[${startDate.getFullYear()}-${
+            startDate.getMonth() + 1
+          }-${startDate.getDate()} ~ ${endDate.getFullYear()}-${
+            endDate.getMonth() + 1
+          }-${endDate.getDate()}]`;
+  }
 
   const mailOptions = {
     from: process.env.APP_TITLE,
     to: user.email,
-    subject: `[${process.env.APP_TITLE}][${dateString}] ${department.name}에서 ${count}개의 새 소식이 왔습니다!`,
+    subject: `[${process.env.APP_TITLE}]${dateString} ${department.name}에서 ${count}개의 새 소식이 왔습니다!`,
     html: content,
   };
 
