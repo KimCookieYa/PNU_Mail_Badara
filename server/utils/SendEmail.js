@@ -117,16 +117,21 @@ async function sendEmailFor(transporter, user, messages, department) {
     return;
   }
 
+  const dateString =
+    startDate.getDate() === endDate.getDate()
+      ? `${startDate.getFullYear()}-${
+          startDate.getMonth() + 1
+        }-${startDate.getDate()}`
+      : `${startDate.getFullYear()}-${
+          startDate.getMonth() + 1
+        }-${startDate.getDate()}~${endDate.getFullYear()}-${
+          endDate.getMonth() + 1
+        }-${endDate.getDate()}`;
+
   const mailOptions = {
     from: process.env.APP_TITLE,
     to: user.email,
-    subject: `[${process.env.APP_TITLE}][${startDate.getFullYear()}:${
-      startDate.getMonth() + 1
-    }:${startDate.getDate()}~${endDate.getFullYear()}:${
-      endDate.getMonth() + 1
-    }:${endDate.getDate()}] ${
-      department.name
-    }에서 ${count}개의 새 소식이 왔습니다!`,
+    subject: `[${process.env.APP_TITLE}][${dateString}] ${department.name}에서 ${count}개의 새 소식이 왔습니다!`,
     html: content,
   };
 

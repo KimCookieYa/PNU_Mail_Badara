@@ -24,14 +24,13 @@ export function isExpired(startTime) {
 
 export function stringToDate(dateString) {
   const dateParts = dateString.split(" ");
-
   const datePart = dateParts[0];
   const timePart = dateParts[1];
 
   const [year, month, day] = datePart.split("-");
   const [hours, minutes, seconds] = timePart.split(":");
 
-  const milliseconds = parseFloat(dateParts[2]);
+  const milliseconds = parseFloat(seconds);
 
   const dateObject = new Date(
     year,
