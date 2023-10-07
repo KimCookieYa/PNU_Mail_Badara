@@ -7,7 +7,7 @@ const AboutPage = forwardRef<HTMLDivElement>((__, ref) => {
         <div className="flex flex-col h-auto p-6 text-center">
           <div className="m-6 text-4xl font-bold">About</div>
           <br />
-          하루 한 번, 오전 11시.
+          하루 두 번, 오전 11시/오후 6시.
           <br />
           <br />
           학과 홈페이지의 새 소식을 메일로 전달해드립니다:)
