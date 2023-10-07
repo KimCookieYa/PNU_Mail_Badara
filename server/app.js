@@ -75,7 +75,7 @@ app.post("/api/user/subscribe", async (req, res) => {
     console.log(`[Subscribing] ${email}:${department} (${startTime})`);
     res.json({
       type: "SUCCESS",
-      message: `이메일 검증을 위해 귀하(${email})의 메일함을 확인해주시기 바랍니다:)`,
+      message: `이메일 검증을 위해 귀하(${email})의 메일함을 확인해주시기 바랍니다:) 메일함에 메일이 오지 않았다면 스팸메일함을 확인해보시기 바랍니다:)`,
     });
   } catch (error) {
     console.error(error);
@@ -214,6 +214,56 @@ app.get("/api/email/existence", async (req, res) => {
       type: "ERROR",
       message: "Server error",
       data: { exist: false },
+    });
+  }
+});
+
+// Endpoint: Get subscriber user count.
+app.get("/api/email/count", async (req, res) => {
+  try {
+    const user = await User.find();
+    res.json({
+      type: "SUCCESS",
+      message: user.length + " users is subscribing.",
+      data: { count: user.length },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(505).json({
+      type: "ERROR",
+      message: "Server error",
+      data: { count: 0 },
+    });
+  }
+});
+
+// Endpoint: Get project commit history.
+app.get("/api/history", async (req, res) => {
+  const owner = process.env.GITHUB_OWNER;
+  const repo = process.env.GITHUB_REPO;
+  const token = process.env.GITHUB_REPO_ACCESS_TOKEN;
+
+  const apiUrl = `https://api.github.com/repos/${owner}/${repo}/commits`;
+
+  try {
+    const response = await axios.get(apiUrl, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    res.json({
+      type: "SUCCESS",
+      message: "Get repo history.",
+      data: {
+        commits: response.data,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(505).json({
+      type: "ERROR",
+      message: "Server error",
+      data: { commits: [] },
     });
   }
 });

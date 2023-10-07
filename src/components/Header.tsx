@@ -9,12 +9,12 @@ function Header({ moveToArtist }: { moveToArtist: (index: number) => void }) {
         <Title onClick={() => moveToArtist(0)} />
         <div>
           <ul className="flex mr-8 text-white gap-x-6">
-            {routerInfoList.slice(1).map((routerInfo, index) => {
+            {routerInfoList.map((routerInfo, index) => {
               return (
                 <li
                   className="hover:cursor-pointer"
                   key={index}
-                  onClick={() => moveToArtist(index + 1)}
+                  onClick={() => moveToArtist(index)}
                 >
                   {routerInfo}
                 </li>

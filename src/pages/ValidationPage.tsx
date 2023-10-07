@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 
 import { isValid } from "../utils/Email";
+import { Response } from "../types/page";
 
 function ValidationPage() {
   const { email } = useParams();
@@ -11,11 +12,11 @@ function ValidationPage() {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await axios.get("/api/email/existence", {
+        const res: Response = await axios.get("/api/email/existence", {
           params: { email },
         });
-        const { exist } = res.data.data;
-        setValid(exist && isValid(email!));
+        const { exist } = res.data.data!;
+        setValid(exist! && isValid(email!));
       } catch (error) {
         console.error(error);
       }
