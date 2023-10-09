@@ -278,8 +278,9 @@ app.listen(PORT, () => {
 });
 
 // cron job at 11:00, 18:00 on Korea. 시차 9시간.
-cron.schedule("0 2,9 * * 1-5", () => {
+cron.schedule("0 * * * * *", () => {
   const now = new Date();
+  now.setHours(now.getHours() + 9);
   console.log(`[Cron] Fetching RSS data (${now}).`);
   Department.find({})
     .then(async (departments) => {
@@ -300,13 +301,19 @@ cron.schedule("0 2,9 * * 1-5", () => {
         for (const [idx, board] of department.boards.entries()) {
           let rssUrl = department.url + board;
           if (department.code.includes("snu")) {
-            rssUrl += "&keys=";
+            rssUrl += "";
           } else {
             rssUrl += "/rssList.do?row=5";
           }
 
           try {
-            const res = await axios.get(rssUrl, { timeout: 5000 });
+            const res = await axios.get(rssUrl, {
+              timeout: 5000,
+              headers: {
+                accept: "text/xml",
+                "Content-Type": "application/rss+xml",
+              },
+            });
             if (res.status === 200) {
               const xmlData = res.data;
 
@@ -322,7 +329,7 @@ cron.schedule("0 2,9 * * 1-5", () => {
               // print item data.
               for (const item of items) {
                 let postIdx = item.link[0].split("/")[6];
-                let imageIdx = 0;
+                let imageIdx = 1;
                 if (department.code.includes("snu")) {
                   postIdx = item.link[0].split("/")[4];
                   imageIdx = 2;
@@ -351,7 +358,10 @@ cron.schedule("0 2,9 * * 1-5", () => {
                 pastPostIndex,
               };
             } else {
-              console.error("[Cron] Failed to fetch RSS data.".res);
+              console.log(
+                `[Cron][${res.status}] Failed to fetch RSS data.`,
+                res
+              );
               // trash value
               messages[department.board_names[idx]] = {
                 message: {},
@@ -360,7 +370,7 @@ cron.schedule("0 2,9 * * 1-5", () => {
               };
             }
           } catch (error) {
-            console.error(error);
+            console.log("[Cron] Failed to fetch RSS data on axios.get", error);
             // trash value
             messages[department.board_names[idx]] = {
               message: {},
@@ -373,6 +383,8 @@ cron.schedule("0 2,9 * * 1-5", () => {
         await sendEmail(global.transporter, messages, department);
         console.log("[Cron] Finished working on", department.code);
       }
+
+      console.log("[Cron] Finished all working on fetching RSS data.");
     })
     .catch((error) => {
       console.log(error);
