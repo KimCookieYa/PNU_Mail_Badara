@@ -380,8 +380,14 @@ cron.schedule("0 2,9 * * 1-5", () => {
 
   // delete expired e-mails from the waiting list.
   console.log("[Cron] Deleting expired e-mails.");
+  console.log(global.waitingQueue);
   Object.keys(global.waitingQueue).forEach((email) => {
-    if (isExpired(global.waitingQueue[email].start_time)) {
+    if (
+      email &&
+      email in global.waitingQueue &&
+      global.waitingQueue[email] !== undefined &&
+      isExpired(global.waitingQueue[email].start_time)
+    ) {
       console.log("[Cron] Expired e-mail: ", email);
       delete global.waitingQueue[email];
     }
