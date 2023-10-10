@@ -308,7 +308,7 @@ cron.schedule("0 2,9 * * 1-5", async () => {
 
         try {
           const res = await axios.get(rssUrl, {
-            timeout: 5000,
+            timeout: 3000,
             headers: {
               accept: "text/xml",
               "Content-Type": "application/rss+xml",
