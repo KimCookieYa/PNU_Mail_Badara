@@ -6,7 +6,7 @@ import xml2js from "xml2js";
 import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import nodemailer from "nodemailer";
+import { createClient } from "redis";
 
 import User from "./models/User.js";
 import Department from "./models/Department.js";
@@ -17,19 +17,9 @@ import { sendEmail, sendEmailValidation } from "./utils/SendEmail.js";
 import { isValid, isExistingEmail, isExpired } from "./utils/Utils.js";
 
 dotenv.config();
-global.waitingQueue = {};
-
-// create email transporter.
-global.transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.GOOGLE_MAIL_USER_ID,
-    pass: process.env.GOOGLE_MAIL_APP_PASSWORD,
-  },
-});
+const redisClient = createClient();
+redisClient.on("error", (err) => console.log("Redis Client Error:", err));
+await redisClient.connect();
 
 const __dirname = path.resolve();
 const app = express();
@@ -66,59 +56,51 @@ app.post("/api/user/subscribe", async (req, res) => {
 
   try {
     // check email validation.
-    await sendEmailValidation(global.transporter, email);
+    await sendEmailValidation(email);
     const startTime = new Date();
-    global.waitingQueue[email] = {
-      department_code: department,
-      start_time: startTime,
-    };
+    startTime.setHours(startTime.getHours() + 9);
     console.log(`[Subscribing] ${email}:${department} (${startTime})`);
-    res.json({
+    await redisClient.set(email, department, { EX: 10 * 60 });
+    return res.json({
       type: "SUCCESS",
       message: `이메일 검증을 위해 귀하(${email})의 메일함을 확인해주시기 바랍니다:) 메일함에 메일이 오지 않았다면 스팸메일함을 확인해보시기 바랍니다:)`,
     });
   } catch (error) {
     console.error(error);
-    res.status(501).json({ type: "ERROR", message: "Server error!" });
+    return res.status(501).json({ type: "ERROR", message: "Server error!" });
   }
 });
 
 // Endpoint: Email Validation
 app.get("/api/user/validation/:email", async (req, res) => {
   const { email } = req.params;
-
+  let code = null;
   // check if email exist in waiting queue.
-  if (
-    !(email in global.waitingQueue) ||
-    global.waitingQueue[email] === undefined
-  ) {
-    res.status(500).json({
+  try {
+    code = await redisClient.get(email);
+    if (code === null) {
+      throw new Error();
+    }
+    redisClient.del(email);
+  } catch (error) {
+    return res.status(500).json({
       type: "ERROR",
-      message: "Server error! Your email don't exist in waiting queue.",
-    });
-  }
-
-  // check if email validation is expired.
-  if (isExpired(global.waitingQueue[email].start_time)) {
-    delete global.waitingQueue[email];
-    res.status(500).json({
-      type: "ERROR",
-      message: "Your email validation is expired.",
+      message:
+        "Server error! While checking your email exist in waiting queue, Error occured.",
+      error,
     });
   }
 
   // check if email exist in database.
   const existingEmail = await isExistingEmail(email);
   if (existingEmail) {
-    res.status(500).json({
+    return res.status(500).json({
       type: "ERROR",
       message: "Your email already exists in the database.",
     });
   }
 
-  const department = await Department.findOne({
-    code: global.waitingQueue[email].department_code,
-  });
+  const department = await Department.findOne({ code: code });
 
   try {
     // save email to MongoDB.
@@ -138,7 +120,7 @@ app.get("/api/user/validation/:email", async (req, res) => {
     );
   } catch (error) {
     console.error(error);
-    res.status(502).json({ type: "ERROR", message: "Server error!" });
+    return res.status(502).json({ type: "ERROR", message: "Server error!" });
   }
 });
 
@@ -162,10 +144,10 @@ app.delete("/api/user/unsubscribe/:email", async (req, res) => {
 
     // delete email in database.
     await User.deleteOne({ email });
-    res.json({ type: "SUCCESS", message: "Delete user information" });
+    return res.json({ type: "SUCCESS", message: "Delete user information" });
   } catch (error) {
     console.error(error);
-    res.status(503).json({ type: "ERROR", message: "Server error!" });
+    return res.status(503).json({ type: "ERROR", message: "Server error!" });
   }
 });
 
@@ -178,14 +160,14 @@ app.get("/api/department", async (req, res) => {
       data[department.code] = department.name;
     }
 
-    res.json({
+    return res.json({
       type: "SUCCESS",
       message: "Get department list.",
       data: data,
     });
   } catch (error) {
     console.error(error);
-    res.status(504).json({ type: "ERROR", message: "Server error" });
+    return res.status(504).json({ type: "ERROR", message: "Server error" });
   }
 });
 
@@ -196,13 +178,13 @@ app.get("/api/email/existence", async (req, res) => {
   try {
     const user = await User.findOne({ email });
     if (user) {
-      res.json({
+      return res.json({
         type: "SUCCESS",
         message: email + " exists in db.",
         data: { exist: true },
       });
     } else {
-      res.json({
+      return res.json({
         type: "ERROR",
         message: email + " doesn't exist in db.",
         data: { exist: false },
@@ -210,7 +192,7 @@ app.get("/api/email/existence", async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(505).json({
+    return res.status(505).json({
       type: "ERROR",
       message: "Server error",
       data: { exist: false },
@@ -222,14 +204,14 @@ app.get("/api/email/existence", async (req, res) => {
 app.get("/api/email/count", async (req, res) => {
   try {
     const user = await User.find();
-    res.json({
+    return res.json({
       type: "SUCCESS",
       message: user.length + " users is subscribing.",
       data: { count: user.length },
     });
   } catch (error) {
     console.error(error);
-    res.status(505).json({
+    return res.status(505).json({
       type: "ERROR",
       message: "Server error",
       data: { count: 0 },
@@ -251,7 +233,7 @@ app.get("/api/history", async (req, res) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    res.json({
+    return res.json({
       type: "SUCCESS",
       message: "Get repo history.",
       data: {
@@ -260,7 +242,7 @@ app.get("/api/history", async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(505).json({
+    return res.status(505).json({
       type: "ERROR",
       message: "Server error",
       data: { commits: [] },
@@ -371,7 +353,7 @@ cron.schedule("0 2,9 * * 1-5", async () => {
         }
       }
 
-      await sendEmail(global.transporter, messages, department);
+      await sendEmail(messages, department);
       console.log("[Cron] Finished working on", department.code);
     }
 
@@ -379,19 +361,4 @@ cron.schedule("0 2,9 * * 1-5", async () => {
   } catch {
     console.log(error);
   }
-
-  // delete expired e-mails from the waiting list.
-  console.log("[Cron] Deleting expired e-mails.");
-  Object.keys(global.waitingQueue).forEach((email) => {
-    if (
-      email &&
-      email in global.waitingQueue &&
-      global.waitingQueue[email] !== undefined &&
-      isExpired(global.waitingQueue[email].start_time)
-    ) {
-      console.log("[Cron] Expired e-mail: ", email);
-      delete global.waitingQueue[email];
-    }
-  });
-  console.log("[Cron] Finished working on deleting expired e-mails.");
 });

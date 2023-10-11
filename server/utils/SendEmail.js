@@ -1,8 +1,9 @@
+import nodemailer from "nodemailer";
 import User from "../models/User.js";
 import { stringToDate } from "./Utils.js";
 
 // send email for all in department.
-export async function sendEmail(transporter, messages, department) {
+export async function sendEmail(messages, department) {
   console.log(`Sending email for All in ${department.name}...`);
 
   const values = Object.values(messages);
@@ -23,7 +24,7 @@ export async function sendEmail(transporter, messages, department) {
         return;
       }
       users.forEach(async (user) => {
-        await sendEmailFor(transporter, user, messages, department);
+        await sendEmailFor(user, messages, department);
       });
     })
     .catch((error) => {
@@ -32,7 +33,7 @@ export async function sendEmail(transporter, messages, department) {
 }
 
 // send email for one user.
-async function sendEmailFor(transporter, user, messages, department) {
+async function sendEmailFor(user, messages, department) {
   let count = 0;
   let boardIdx = 0;
   let content = "";
@@ -138,6 +139,18 @@ async function sendEmailFor(transporter, user, messages, department) {
     html: content,
   };
 
+  // create email transporter.
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.GOOGLE_MAIL_USER_ID,
+      pass: process.env.GOOGLE_MAIL_APP_PASSWORD,
+    },
+  });
+
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log("[Success] Send email to", user.email);
@@ -151,7 +164,7 @@ async function sendEmailFor(transporter, user, messages, department) {
 }
 
 // send email validation.
-export async function sendEmailValidation(transporter, email) {
+export async function sendEmailValidation(email) {
   const mailOptions = {
     from: process.env.APP_TITLE,
     to: email,
@@ -168,6 +181,18 @@ export async function sendEmailValidation(transporter, email) {
                 </a>
               </div>`,
   };
+
+  // create email transporter.
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.GOOGLE_MAIL_USER_ID,
+      pass: process.env.GOOGLE_MAIL_APP_PASSWORD,
+    },
+  });
 
   await transporter.sendMail(mailOptions);
 }
