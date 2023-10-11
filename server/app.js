@@ -176,7 +176,7 @@ app.delete("/api/user/unsubscribe/:email", async (req, res) => {
 });
 
 // Endpoint: Get Department
-app.get("/api/department", async (req, res) => {
+app.get("/api/department/name", async (req, res) => {
   try {
     const departments = await Department.find({}, "code name");
     const data = {};

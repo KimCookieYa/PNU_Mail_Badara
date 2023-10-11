@@ -24,7 +24,7 @@ function MainPage() {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await axios.get("/api/department");
+        const res = await axios.get("/api/department/name");
         setDepartmentList(res.data.data);
       } catch (error) {
         console.error("Error:", error);
