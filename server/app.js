@@ -284,7 +284,9 @@ app.listen(PORT, () => {
 });
 
 // cron job at 11:00, 18:00 on Korea. 시차 9시간.
-cron.schedule("0 2,9 * * 1-5", async () => {
+cron.schedule("0 2,9 * * 1-5", schedulingJobs);
+
+async function schedulingJobs() {
   const now = new Date();
   now.setHours(now.getHours() + 9);
   console.log(`[Cron] Fetching RSS data (${now}).`);
@@ -384,4 +386,4 @@ cron.schedule("0 2,9 * * 1-5", async () => {
   } catch {
     console.log(error);
   }
-});
+}
