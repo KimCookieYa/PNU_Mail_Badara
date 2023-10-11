@@ -7,7 +7,7 @@ import { mockUsers } from "../utils/UserData.js";
 // connect to database and set Mock.
 export async function setMock() {
   const CONNECTION_URL =
-    process.env.NODE_ENV === "production"
+    process.env.NODE_ENV === "production" || process.env.NODE_ENV === "docker"
       ? process.env.MONGO_ATLAS_CONNECTION_URL
       : process.env.MONGO_LOCAL_CONNECTION_URL;
 

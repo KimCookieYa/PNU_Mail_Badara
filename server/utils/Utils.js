@@ -15,13 +15,6 @@ export async function isExistingEmail(email) {
   return await User.findOne({ email: email });
 }
 
-// check whether the email verification period(10min) has expired.
-export function isExpired(startTime) {
-  const endTime = new Date();
-  const diff = endTime.getTime() - startTime.getTime();
-  return diff > 1000 * 60 * 10;
-}
-
 export function stringToDate(dateString) {
   const dateParts = dateString.split(" ");
   const datePart = dateParts[0];

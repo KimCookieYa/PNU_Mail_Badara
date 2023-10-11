@@ -1,3 +1,5 @@
+"use strict";
+
 import express from "express";
 import path from "path";
 import cron from "node-cron";
@@ -6,7 +8,6 @@ import xml2js from "xml2js";
 import cors from "cors";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-import { createClient } from "redis";
 
 import User from "./models/User.js";
 import Department from "./models/Department.js";
@@ -14,16 +15,24 @@ import Department from "./models/Department.js";
 import { scrapeNthImage } from "./utils/ScrapeImages.js";
 import { setMock } from "./utils/SetMock.js";
 import { sendEmail, sendEmailValidation } from "./utils/SendEmail.js";
-import { isValid, isExistingEmail, isExpired } from "./utils/Utils.js";
+import { isValid, isExistingEmail } from "./utils/Utils.js";
+import { initializeRedis } from "./utils/Redis.js";
 
-dotenv.config();
-const redisClient = createClient();
-redisClient.on("error", (err) => console.log("Redis Client Error:", err));
-await redisClient.connect();
+let redisClient = null;
+try {
+  dotenv.config();
+  redisClient = await initializeRedis();
+  if (redisClient === null) {
+    throw new Error("Redis client is null.");
+  }
+} catch (error) {
+  console.error("Error during server initialization:", error);
+  process.exit(1);
+}
 
 const __dirname = path.resolve();
 const app = express();
-const PORT = process.env.NODE_ENV === "production" ? process.env.PORT : 3000;
+const PORT = process.env.PORT | 8000;
 
 // connect to database and set Mock.
 await setMock();
@@ -60,7 +69,11 @@ app.post("/api/user/subscribe", async (req, res) => {
     const startTime = new Date();
     startTime.setHours(startTime.getHours() + 9);
     console.log(`[Subscribing] ${email}:${department} (${startTime})`);
-    await redisClient.set(email, department, { EX: 10 * 60 });
+    await redisClient.set(email, department, "EX", 10 * 60, (err) => {
+      if (err) {
+        throw new Error(err);
+      }
+    });
     return res.json({
       type: "SUCCESS",
       message: `이메일 검증을 위해 귀하(${email})의 메일함을 확인해주시기 바랍니다:) 메일함에 메일이 오지 않았다면 스팸메일함을 확인해보시기 바랍니다:)`,
@@ -74,14 +87,23 @@ app.post("/api/user/subscribe", async (req, res) => {
 // Endpoint: Email Validation
 app.get("/api/user/validation/:email", async (req, res) => {
   const { email } = req.params;
-  let code = null;
+  let code;
   // check if email exist in waiting queue.
   try {
-    code = await redisClient.get(email);
-    if (code === null) {
+    code = await redisClient.get(email, (err, code) => {
+      if (err) {
+        throw new Error(err);
+      }
+      return code;
+    });
+    if (!code) {
       throw new Error();
     }
-    redisClient.del(email);
+    redisClient.del(email, (err) => {
+      if (err) {
+        throw new Error(err);
+      }
+    });
   } catch (error) {
     return res.status(500).json({
       type: "ERROR",
@@ -100,9 +122,11 @@ app.get("/api/user/validation/:email", async (req, res) => {
     });
   }
 
-  const department = await Department.findOne({ code: code });
-
   try {
+    const department = await Department.findOne({ code: code });
+    if (!department) {
+      throw new Error("Department not found.");
+    }
     // save email to MongoDB.
     const newEmail = new User({
       email: email,
