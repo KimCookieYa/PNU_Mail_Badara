@@ -10,8 +10,14 @@ export type Response = {
   };
 };
 
-export type DepartmentList = {
+export type DepartmentObject = {
   [key: string]: string;
+};
+
+export type DeaprtmentList = {
+  code: string;
+  name: string;
+  board_names: string[];
 };
 
 export interface Commit {

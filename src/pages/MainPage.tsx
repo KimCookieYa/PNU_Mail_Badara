@@ -5,11 +5,11 @@ import { isValid } from "../utils/Email";
 import { mySuccessAlert, myErrorAlert, myWarningAlert } from "../utils/MyAlert";
 import Loading from "../components/Loading";
 
-import { Response, DepartmentList } from "../types/page";
+import { Response, DepartmentObject } from "../types/page";
 
 function MainPage() {
   const [email, setEmail] = useState<string>("");
-  const [departmentList, setDepartmentList] = useState<DepartmentList>({
+  const [departmentList, setDepartmentList] = useState<DepartmentObject>({
     cse: "정보컴퓨터공학부",
   });
   const [selectedDepartment, setSelectedDepartment] =

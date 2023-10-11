@@ -1,4 +1,5 @@
 export const mockDepartments = [
+  /*
   {
     code: "cse",
     name: "정보컴퓨터공학부",
@@ -30,5 +31,5 @@ export const mockDepartments = [
       "취업게시판",
       "장학게시판",
     ],
-  },
+  },*/
 ];

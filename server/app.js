@@ -175,7 +175,7 @@ app.delete("/api/user/unsubscribe/:email", async (req, res) => {
   }
 });
 
-// Endpoint: Get Department
+// Endpoint: Get Department Name
 app.get("/api/department/name", async (req, res) => {
   try {
     const departments = await Department.find({}, "code name");
@@ -186,12 +186,28 @@ app.get("/api/department/name", async (req, res) => {
 
     return res.json({
       type: "SUCCESS",
-      message: "Get department list.",
+      message: "Get department name list.",
       data: data,
     });
   } catch (error) {
     console.error(error);
     return res.status(504).json({ type: "ERROR", message: "Server error" });
+  }
+});
+
+// Endpoint: Get Department Boards
+app.get("/api/department/board", async (req, res) => {
+  try {
+    const departments = await Department.find({}, "code name board_names");
+
+    return res.json({
+      type: "SUCCESS",
+      message: "Get department board list.",
+      data: departments,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(506).json({ type: "ERROR", message: "Server error" });
   }
 });
 

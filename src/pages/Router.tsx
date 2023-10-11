@@ -14,4 +14,10 @@ export const router = createBrowserRouter([
   },
 ]);
 
-export const routerInfoList = ["Main", "About", "Detail", "History"];
+export const routerInfoList = [
+  "Main",
+  "About",
+  "Department",
+  "Detail",
+  "History",
+];
