@@ -410,7 +410,7 @@ async function schedulingJobs() {
     }
 
     console.log("[Cron] Finished all working on fetching RSS data.");
-  } catch {
+  } catch (error) {
     console.log(error);
   }
 }
