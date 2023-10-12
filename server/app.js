@@ -303,6 +303,7 @@ app.listen(PORT, () => {
 cron.schedule("0 2,9 * * 1-5", schedulingJobs);
 
 async function schedulingJobs() {
+  console.log("-----------------------------");
   const now = new Date();
   now.setHours(now.getHours() + 9);
   console.log(`[Cron] Fetching RSS data (${now}).`);
@@ -413,6 +414,7 @@ async function schedulingJobs() {
   } catch (error) {
     console.log(error);
   }
+  console.log("-----------------------------");
 }
 
 // if deployed, excute schedulingJobs.
