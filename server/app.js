@@ -319,7 +319,7 @@ async function schedulingJobs() {
         return;
       }
 
-      const messages = {};
+      let messages = {};
       console.log("[Cron] Fetching RSS data on", department.code);
 
       for (const [idx, board] of department.boards.entries()) {
