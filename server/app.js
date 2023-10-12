@@ -389,12 +389,23 @@ async function schedulingJobs() {
           messages[department.board_names[idx]] = {
             message: {},
             latestPostIndex: -1,
-            pastPostIndex: 1000000000,
           };
         }
       }
 
       await sendEmail(messages, department);
+
+      // remove memory ref
+      for (let key in messages) {
+        if (typeof messages[key] === "object") {
+          for (let innerKey in messages[key]) {
+            messages[key][innerKey] = null;
+          }
+        }
+        messages[key] = null;
+      }
+      messages = null;
+
       console.log("[Cron] Finished working on", department.code);
     }
 
@@ -403,3 +414,6 @@ async function schedulingJobs() {
     console.log(error);
   }
 }
+
+// if deployed, excute schedulingJobs.
+schedulingJobs();
