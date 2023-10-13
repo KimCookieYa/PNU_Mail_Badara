@@ -418,4 +418,4 @@ async function schedulingJobs() {
 }
 
 // if deployed, excute schedulingJobs.
-schedulingJobs();
+// schedulingJobs();

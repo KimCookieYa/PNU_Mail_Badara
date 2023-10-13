@@ -1,14 +1,14 @@
-FROM node:18.17.1
+FROM oven/bun:latest
 
 WORKDIR /usr/src/app
 
-COPY package.json yarn.lock ./
+COPY package.json bun.lockb ./
 RUN mkdir server
-COPY server/package.json server/yarn.lock ./server/
-RUN yarn install
+COPY server/package.json server/bun.lockb ./server/
+RUN bun install
 
 COPY ./ ./
-RUN yarn build
+RUN bun build
 
-CMD ["yarn", "start"]
+CMD ["bun", "start"]
 EXPOSE 8000

@@ -1,6 +1,6 @@
 {
   "name": "server",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "main": "index.js",
   "license": "MIT",
   "type": "module",
@@ -17,11 +17,10 @@
     "xml2js": "^0.6.2"
   },
   "scripts": {
-    "server": "node app.js",
-    "server:dev": "nodemon app.js"
+    "server": "bun app.js",
+    "server:dev": "bun --hot app.js"
   },
   "devDependencies": {
-    "@types/nodemailer": "^6.4.11",
-    "nodemon": "^3.0.1"
+    "@types/nodemailer": "^6.4.11"
   }
 }
