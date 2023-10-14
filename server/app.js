@@ -1,6 +1,10 @@
 "use strict";
 
-import express from "express";
+import Fastify from 'fastify'
+const fastify = Fastify({
+  logger: true
+})
+
 import path from "path";
 import cron from "node-cron";
 import axios from "axios";
@@ -31,23 +35,22 @@ try {
 }
 
 const __dirname = path.resolve();
-const app = express();
 const PORT = process.env.PORT | 8000;
 
 // connect to database and set Mock.
 await setMock();
 
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "../dist")));
+fastify.use(cors());
+fastify.use(bodyParser.json());
+fastify.use(express.static(path.join(__dirname, "../dist")));
 
 // serve react.
-app.get("/", (req, res) => {
+fastify.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
 // Endpoint: Email Subscribe
-app.post("/api/user/subscribe", async (req, res) => {
+fastify.post("/api/user/subscribe", async (req, res) => {
   const { email, department } = req.body;
 
   if (!isValid(email)) {
@@ -85,7 +88,7 @@ app.post("/api/user/subscribe", async (req, res) => {
 });
 
 // Endpoint: Email Validation
-app.get("/api/user/validation/:email", async (req, res) => {
+fastify.get("/api/user/validation/:email", async (req, res) => {
   const { email } = req.params;
   let code;
   // check if email exist in waiting queue.
@@ -149,7 +152,7 @@ app.get("/api/user/validation/:email", async (req, res) => {
 });
 
 // Endpoint: Email Delete
-app.delete("/api/user/unsubscribe/:email", async (req, res) => {
+fastify.delete("/api/user/unsubscribe/:email", async (req, res) => {
   const { email } = req.params;
 
   if (!isValid(email)) {
@@ -176,7 +179,7 @@ app.delete("/api/user/unsubscribe/:email", async (req, res) => {
 });
 
 // Endpoint: Get Department Name
-app.get("/api/department/name", async (req, res) => {
+fastify.get("/api/department/name", async (req, res) => {
   try {
     const departments = await Department.find({}, "code name");
     const data = {};
@@ -196,7 +199,7 @@ app.get("/api/department/name", async (req, res) => {
 });
 
 // Endpoint: Get Department Boards
-app.get("/api/department/board", async (req, res) => {
+fastify.get("/api/department/board", async (req, res) => {
   try {
     const departments = await Department.find({}, "code name board_names");
 
@@ -212,7 +215,7 @@ app.get("/api/department/board", async (req, res) => {
 });
 
 // Endpoint: Check whether email exists in database.
-app.get("/api/email/existence", async (req, res) => {
+fastify.get("/api/email/existence", async (req, res) => {
   const { email } = req.query;
 
   try {
@@ -241,7 +244,7 @@ app.get("/api/email/existence", async (req, res) => {
 });
 
 // Endpoint: Get subscriber user count.
-app.get("/api/email/count", async (req, res) => {
+fastify.get("/api/email/count", async (req, res) => {
   try {
     const user = await User.find();
     return res.json({
@@ -260,7 +263,7 @@ app.get("/api/email/count", async (req, res) => {
 });
 
 // Endpoint: Get project commit history.
-app.get("/api/history", async (req, res) => {
+fastify.get("/api/history", async (req, res) => {
   const owner = process.env.GITHUB_OWNER;
   const repo = process.env.GITHUB_REPO;
   const token = process.env.GITHUB_REPO_ACCESS_TOKEN;
@@ -291,12 +294,16 @@ app.get("/api/history", async (req, res) => {
 });
 
 // Endpoint: React Routing
-app.get("*", (req, res) => {
+fastify.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist", "index.html"));
 });
 
-app.listen(PORT, () => {
-  console.log("[Running] Server is running on port", PORT);
+fastify.listen({port: PORT}, (err, address) => {
+  if (err) {
+    fastify.log.error(err)
+    process.exit(1)
+  }
+  console.log("[Running] Server is running on port", PORT, ":", address);
 });
 
 // cron job at 11:00, 18:00 on Korea. 시차 9시간.
