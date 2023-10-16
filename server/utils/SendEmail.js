@@ -17,19 +17,19 @@ export async function sendEmail(messages, department) {
     query.$or = condition;
   }
 
-  await User.find(query)
-    .then((users) => {
-      if (users.length === 0) {
-        console.log(`All users of ${department.name} are latest.`);
-        return;
-      }
-      users.forEach(async (user) => {
-        await sendEmailFor(user, messages, department);
-      });
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+  const users = await User.find(query);
+  if (users.length === 0) {
+    console.log(`All users of ${department.name} are latest.`);
+    return;
+  }
+
+  try {
+    for (const user of users) {
+      await sendEmailFor(user, messages, department);
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 // send email for one user.
@@ -152,7 +152,7 @@ async function sendEmailFor(user, messages, department) {
   });
 
   try {
-    const info = await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
     console.log("[Success] Send email to", user.email);
     await User.updateOne(
       { email: user.email },
