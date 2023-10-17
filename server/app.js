@@ -14,7 +14,11 @@ import Department from "./models/Department.js";
 
 import { scrapeNthImage } from "./utils/ScrapeImages.js";
 import { setMock } from "./utils/SetMock.js";
-import { sendEmail, sendEmailValidation } from "./utils/SendEmail.js";
+import {
+  sendEmail,
+  sendEmailValidation,
+  sendSubscritionSuccessEmail,
+} from "./utils/SendEmail.js";
 import { isValid, isExistingEmail } from "./utils/Utils.js";
 import { initializeRedis } from "./utils/Redis.js";
 
@@ -135,6 +139,10 @@ app.get("/api/user/validation/:email", async (req, res) => {
       subscribe_time: new Date(),
     });
     await newEmail.save();
+    await sendSubscritionSuccessEmail(email, department.name);
+    console.log(
+      `[Subscribe Success] ${email}:${department.code} subscription to a has been successfully completed.`
+    );
     res.redirect(
       `${
         process.env.NODE_ENV === "production"

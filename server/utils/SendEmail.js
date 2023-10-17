@@ -196,3 +196,39 @@ export async function sendEmailValidation(email) {
 
   await transporter.sendMail(mailOptions);
 }
+
+// send subscrition success email.
+export async function sendSubscritionSuccessEmail(email, department_name) {
+  const mailOptions = {
+    from: process.env.APP_TITLE,
+    to: email,
+    subject: `[${process.env.APP_TITLE}] 구독 완료`,
+    html: `<p>
+      ${email}님의 ${department_name} 구독이 성공적으로 완료되었습니다:)<br/>
+      MailBadara 서비스를 구독해주셔서 감사드립니다:)<br/>
+      구독 취소는 아래 버튼을 눌러 진행하실 수 있습니다.
+      <hr>
+    </p>
+    <div style="text-align: center; margin: 20px">
+      <a href="${
+        process.env.NODE_ENV === "production"
+          ? process.env.PRODUCTION_URL
+          : process.env.DEVELOPMENT_URL
+      }">Unsubscribe</a>
+    </div>`,
+  };
+
+  // create email transporter.
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.GOOGLE_MAIL_USER_ID,
+      pass: process.env.GOOGLE_MAIL_APP_PASSWORD,
+    },
+  });
+
+  await transporter.sendMail(mailOptions);
+}
