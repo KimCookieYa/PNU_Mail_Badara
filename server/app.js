@@ -324,12 +324,12 @@ async function schedulingJobs() {
 
     for (const department of departments) {
       if (department.boards.length === 0) {
-        console.log("[Cron] No RSS data on", department.code);
+        console.log("[Cron] No RSS data on", department.name);
         return;
       }
 
       let messages = {};
-      console.log("[Cron] Fetching RSS data on", department.code);
+      console.log("[Cron] Fetching RSS data on", department.name);
 
       for (const [idx, board] of department.boards.entries()) {
         let rssUrl = department.url + board;
@@ -415,7 +415,7 @@ async function schedulingJobs() {
       }
       messages = null;
 
-      console.log("[Cron] Finished working on", department.code);
+      console.log("[Cron] Finished working on", department.name);
     }
 
     console.log("[Cron] Finished all working on fetching RSS data.");
