@@ -131,6 +131,7 @@ function MainPage() {
                 className="flex-grow px-3 py-2 border border-gray-300 rounded"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                autoFocus
               />
               <div className="flex space-x-2">
                 <button
