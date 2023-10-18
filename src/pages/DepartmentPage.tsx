@@ -5,39 +5,44 @@ import { DeaprtmentList } from "../types/page";
 
 function MyTable({ data }: { data: DeaprtmentList }) {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      whileHover={{ scale: 1.2 }}
-      whileTap={{ scale: 0.8 }}
-      className="p-5 m-10 text-white border border-solid rounded-lg shadow-md"
+    <a
+      href={`https://${data.code}.pusan.ac.kr/${data.code}/index.do`}
+      target="_blank"
     >
-      <h2 className="mb-5 text-xl font-bold ">
-        {data.name} ({data.code})
-      </h2>
-      <table className="w-full border-t border-collapse border-gray-300">
-        <thead>
-          <tr>
-            <th className="px-4 py-2 font-semibold text-left border-b border-gray-300">
-              게시판 이름
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.board_names.map((boardName) => (
-            <tr
-              key={boardName}
-              className="transition-colors duration-200 hover:bg-gray-100"
-            >
-              <td className="px-4 py-2 border-b border-gray-300">
-                {boardName}
-              </td>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        whileHover={{ scale: 1.2 }}
+        whileTap={{ scale: 0.8 }}
+        className="p-5 m-10 text-white border border-solid rounded-lg shadow-md"
+      >
+        <h2 className="mb-5 text-xl font-bold ">
+          {data.name} ({data.code})
+        </h2>
+        <table className="w-full border-t border-collapse border-gray-300">
+          <thead>
+            <tr>
+              <th className="px-4 py-2 font-semibold text-left border-b border-gray-300">
+                게시판 이름
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </motion.div>
+          </thead>
+          <tbody>
+            {data.board_names.map((boardName) => (
+              <tr
+                key={boardName}
+                className="transition-colors duration-200 hover:bg-gray-100"
+              >
+                <td className="px-4 py-2 border-b border-gray-300">
+                  {boardName}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </motion.div>
+    </a>
   );
 }
 
