@@ -2,9 +2,13 @@
   "include": ["./"],
   "compilerOptions": {
     "outDir": "build",
-    "target": "es6",
-    "strict": true,
+    "target": "ES6",
     "lib": ["ES6"],
-    "esModuleInterop": true
+    "module": "ESNext",
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   }
 }
