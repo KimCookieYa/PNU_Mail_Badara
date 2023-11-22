@@ -13,7 +13,7 @@ export async function schedulingJobs() {
   try {
     const temp_departments = await Department.find({});
     const departments = temp_departments.filter((__, index) => {
-      return (index + now.getHours() + 14) % 24 === 0;
+      return index % 12 === (now.getHours() + 14) % 12;
     });
     if (departments.length === 0) {
       console.log("[Cron] Department is nothing.");
