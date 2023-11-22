@@ -15,7 +15,6 @@ import { setMock } from "./utils/mock";
 
 dotenv.config();
 
-const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.PORT || 8000;
 

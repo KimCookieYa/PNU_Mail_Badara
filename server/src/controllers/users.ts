@@ -8,7 +8,7 @@ import {
   isExistingEmail,
   sendEmailValidation,
   sendSubscritionSuccessEmail,
-} from "../utils/util.js";
+} from "../utils/util";
 import { getRedisClient } from "../utils/redisClient";
 
 export const postRegisterUser: RequestHandler = async (req, res) => {
