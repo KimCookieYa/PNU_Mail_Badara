@@ -7,13 +7,13 @@ export interface IUser extends Document, UserType {}
 // User 클래스 정의
 class User {
   email: string;
-  latest_post_indexes: number[];
+  latest_post_indexs: number[];
   department_code: string;
   subscribe_time: Date;
 
   constructor(email: string, departmentCode: string) {
     this.email = email;
-    this.latest_post_indexes = [-1];
+    this.latest_post_indexs = [-1];
     this.department_code = departmentCode;
     this.subscribe_time = new Date();
   }
@@ -26,7 +26,7 @@ const UserSchema: Schema = new Schema({
     required: true,
     unique: true,
   },
-  latest_post_indexes: {
+  latest_post_indexs: {
     type: [Number],
     default: -1,
   },
