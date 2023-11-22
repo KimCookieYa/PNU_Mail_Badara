@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
-import nodemailer from "nodemailer";
+import * as nodemailer from "nodemailer";
 
 import User, { IUser } from "../models/User";
 import { MessagesType } from "../types/MessageType";

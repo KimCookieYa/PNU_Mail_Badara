@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 import Department from "../models/Department.js";
 import User from "../models/User.js";
-import { mockDepartments } from "../utils/DepartmentData.js";
-import { mockUsers } from "../utils/UserData.js";
+import { mockDepartments } from "./DepartmentData.js";
+import { mockUsers } from "./UserData.js";
 
 // connect to database and set Mock.
 export async function setMock() {

@@ -1,5 +1,5 @@
 import axios from "axios";
-import xml2js from "xml2js";
+import * as xml2js from "xml2js";
 
 import Department from "../models/Department";
 import { scrapeNthImage, sendEmail } from "./util";
