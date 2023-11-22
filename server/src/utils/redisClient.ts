@@ -1,10 +1,14 @@
+// redisClient.js
 import Redis from "ioredis";
 
-export const initializeRedis = async () => {
-  const port =
+let redisClient = null;
+
+const initializeRedis = () => {
+  const port = Number(
     process.env.NODE_ENV === "production"
       ? process.env.REDIS_LABS_PORT
-      : process.env.REDIS_DOCKER_PORT;
+      : process.env.REDIS_DOCKER_PORT
+  );
   const host =
     process.env.NODE_ENV === "production"
       ? process.env.REDIS_LABS_HOST
@@ -15,12 +19,23 @@ export const initializeRedis = async () => {
           password: process.env.REDIS_LABS_PASSWORD,
         }
       : {};
-  const redisClient = new Redis(port, host, options);
+
+  redisClient = new Redis(port, host, options);
+
   redisClient.on("connect", () => {
-    console.log("[Success] Redis Connected");
+    console.log("Redis client connected");
   });
+
   redisClient.on("error", (err) => {
-    console.log("[Error] Redis error: " + err);
+    console.error("Redis error", err);
   });
+
+  return redisClient;
+};
+
+export const getRedisClient = () => {
+  if (!redisClient) {
+    initializeRedis();
+  }
   return redisClient;
 };

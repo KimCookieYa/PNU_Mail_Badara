@@ -1,9 +1,55 @@
+import axios from "axios";
+import cheerio from "cheerio";
 import nodemailer from "nodemailer";
-import User from "../models/User.js";
-import { stringToDate } from "./Utils.js";
+
+import User, { IUser } from "../models/User";
+import { MessagesType } from "../types/MessageType";
+import { IDepartment } from "../models/Department";
+
+export async function scrapeImages(url: string): Promise<string[]> {
+  try {
+    const res = await axios.get(url);
+    const html = res.data;
+    const $ = cheerio.load(html);
+
+    const images = [""];
+    $("img").each((index, element) => {
+      const src = $(element).attr("src");
+      if (src) {
+        images.push(src);
+      }
+    });
+    return images;
+  } catch (error) {
+    console.error(error);
+    return [""];
+  }
+}
+
+export async function scrapeNthImage(url: string, idx: number) {
+  try {
+    const res = await axios.get(url);
+    const html = res.data;
+    const $ = cheerio.load(html);
+
+    const nthImage = $(`img:nth-child(${idx})`).attr("src");
+
+    if (nthImage && nthImage.includes(".ac.kr")) {
+      return [nthImage];
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error("[Scrapping] Failed to fetch image.", error);
+    return [];
+  }
+}
 
 // send email for all in department.
-export async function sendEmail(messages, department) {
+export async function sendEmail(
+  messages: MessagesType,
+  department: IDepartment
+) {
   console.log(`Sending email for All in ${department.name}...`);
 
   const values = Object.values(messages);
@@ -12,6 +58,7 @@ export async function sendEmail(messages, department) {
   }));
   const query = {
     department_code: department.code,
+    $or: [],
   };
   if (condition.length > 0) {
     query.$or = condition;
@@ -33,7 +80,11 @@ export async function sendEmail(messages, department) {
 }
 
 // send email for one user.
-async function sendEmailFor(user, messages, department) {
+async function sendEmailFor(
+  user: IUser,
+  messages: MessagesType,
+  department: IDepartment
+) {
   let count = 0;
   let boardIdx = 0;
   let content = "";
@@ -48,12 +99,12 @@ async function sendEmailFor(user, messages, department) {
     const postIdxs = Object.keys(message.message);
     updatedLatestPostIndexs.push(
       message.latestPostIndex === -1
-        ? user.latest_post_indexs[boardIdx]
+        ? user.latest_post_indexes[boardIdx]
         : message.latestPostIndex
     );
 
     let tempContent = "";
-    let pastPostIndexs = user.latest_post_indexs;
+    let pastPostIndexs = user.latest_post_indexes;
 
     for (const postIdx of postIdxs) {
       const postIndex = Number(postIdx);
@@ -164,7 +215,7 @@ async function sendEmailFor(user, messages, department) {
 }
 
 // send email validation.
-export async function sendEmailValidation(email) {
+export async function sendEmailValidation(email: string) {
   const mailOptions = {
     from: process.env.APP_TITLE,
     to: email,
@@ -198,7 +249,10 @@ export async function sendEmailValidation(email) {
 }
 
 // send subscrition success email.
-export async function sendSubscritionSuccessEmail(email, department_name) {
+export async function sendSubscritionSuccessEmail(
+  email: string,
+  department_name: string
+) {
   const mailOptions = {
     from: process.env.APP_TITLE,
     to: email,
@@ -222,6 +276,7 @@ export async function sendSubscritionSuccessEmail(email, department_name) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
+    from: process.env.APP_TITLE,
     port: 587,
     secure: false,
     auth: {
@@ -231,4 +286,41 @@ export async function sendSubscritionSuccessEmail(email, department_name) {
   });
 
   await transporter.sendMail(mailOptions);
+}
+
+// check whether the email is valid.
+export function isValid(email: string) {
+  return (
+    email.length > 0 &&
+    email.includes("@") &&
+    email.includes(".") &&
+    email.split("@")[0].length >= 5
+  );
+}
+
+// check whether the email exists in the database.
+export async function isExistingEmail(email: string) {
+  return await User.findOne({ email: email });
+}
+
+export function stringToDate(dateString: string) {
+  const dateParts = dateString.split(" ");
+  const datePart = dateParts[0];
+  const timePart = dateParts[1];
+
+  const [year, month, day] = datePart.split("-");
+  const [hours, minutes, seconds] = timePart.split(":");
+
+  const milliseconds = parseFloat(seconds);
+
+  const dateObject = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    Number(hours),
+    Number(minutes),
+    Number(seconds),
+    Number(milliseconds)
+  );
+  return dateObject;
 }
