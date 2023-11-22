@@ -40,6 +40,6 @@ app.listen(PORT, () => {
   console.log("[Running] Server is running on port", PORT);
 });
 
-// cron job at 11:00, 18:00 on Korea. 시차 9시간.
-cron.schedule("0 2,9 * * 1-5", schedulingJobs);
+// cron job at 10:00 on Korea. 시차 9시간.
+cron.schedule("0 1 * * 1-6", schedulingJobs);
 schedulingJobs();

@@ -11,7 +11,10 @@ export async function schedulingJobs() {
   now.setHours(now.getHours() + 9);
   console.log(`[Cron] Fetching RSS data (${now}).`);
   try {
-    const departments = await Department.find({});
+    const temp_departments = await Department.find({});
+    const departments = temp_departments.filter((__, index) => {
+      return (index + now.getHours() + 14) % 24 === 0;
+    });
     if (departments.length === 0) {
       console.log("[Cron] Department is nothing.");
       return;
