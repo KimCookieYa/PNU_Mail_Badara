@@ -14,12 +14,13 @@
     "mongoose": "^7.5.3",
     "node-cron": "^3.0.2",
     "nodemailer": "^6.9.5",
+    "vite": "^5.0.2",
     "xml2js": "^0.6.2"
   },
   "scripts": {
     "build": "tsc",
-    "server": "node dist/app.js",
-    "server:dev": "nodemon --exec ts-node src/app.ts"
+    "server": "node ./dist/assets/app.js",
+    "server:dev": "nodemon --exec ts-node ./src/app.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.16",
