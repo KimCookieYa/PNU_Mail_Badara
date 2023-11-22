@@ -23,7 +23,7 @@ setMock();
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "dist")));
+app.use(express.static(path.join(__dirname, "../../dist")));
 
 // Endpoint: API Routing
 app.use("/api/user", UserRouter);
@@ -33,7 +33,7 @@ app.use("/api/history", HistoryRouter);
 
 // Endpoint: Client Routing
 app.use("*", (__: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, "dist", "index.html"));
+  res.sendFile(path.join(__dirname, "../../dist", "index.html"));
 });
 
 app.listen(PORT, () => {
