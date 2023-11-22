@@ -8,7 +8,7 @@ const AboutPage = forwardRef<HTMLDivElement>((__, ref) => {
           <div className="m-6 text-4xl font-bold">Mail Badara</div>
           <br />
           <div className="text-2xl italic text-gray-500">
-            하루 두 번, 오전 11시, 오후 6시.
+            하루 한 번, 오전 10시부터 1시간마다 학과마다 보내드립니다.
             <br />
             <br />
             학과의 새 소식을 메일로 전달해드립니다:)
