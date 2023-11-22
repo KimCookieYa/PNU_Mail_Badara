@@ -1,5 +1,5 @@
 import axios from "axios";
-import cheerio from "cheerio";
+import * as cheerio from "cheerio";
 import nodemailer from "nodemailer";
 
 import User, { IUser } from "../models/User";
@@ -99,12 +99,12 @@ async function sendEmailFor(
     const postIdxs = Object.keys(message.message);
     updatedLatestPostIndexs.push(
       message.latestPostIndex === -1
-        ? user.latest_post_indexes[boardIdx]
+        ? user.latest_post_indexs[boardIdx]
         : message.latestPostIndex
     );
 
     let tempContent = "";
-    let pastPostIndexs = user.latest_post_indexes;
+    let pastPostIndexs = user.latest_post_indexs;
 
     for (const postIdx of postIdxs) {
       const postIndex = Number(postIdx);

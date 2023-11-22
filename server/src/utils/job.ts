@@ -89,7 +89,7 @@ export async function schedulingJobs() {
         }
       }
 
-      sendEmail(messages, department);
+      await sendEmail(messages, department);
 
       console.log("[Cron] Finished working on", department.name);
     }
