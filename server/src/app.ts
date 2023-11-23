@@ -41,4 +41,4 @@ app.listen(PORT, () => {
 });
 
 // cron job at 10:00-20:00 on Korea. 시차 9시간.
-cron.schedule("0 1-13 * * 1-6", schedulingJobs);
+cron.schedule("0 1-12 * * 1-6", schedulingJobs);
