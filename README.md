@@ -2,7 +2,10 @@
 
 ## 💻 프로젝트 소개
 
-사이드프로젝트 - 부산대학교 학과 소식 구독 서비스.
+:calendar: 2023.09~current
+개인 프로젝트
+
+> 부산대학교 학생들을 위한 학과 홈페이지 뉴스레터 구독 서비스
 
 ## 소개 문구
 
@@ -19,26 +22,25 @@
 
 학과/게시판 추가 요청 또는 개선사항이 있을 시, <blueclub651@gmail.com>으로 연락주시기 바랍니다!
 
-## :calendar: 개발 기간
-
-- 23.09.27~진행 중
-
 ## 👋 멤버 구성 및 역할
 
-- @KimCookieYa: 풀스택 개발
+- @KimCookieYa: 웹 UI 구현 및 메일 검증 로직/메일 전송 로직 구현
+
+## 🔧 아키텍처
+
+![](./docs/MailBadara_아키텍처.png)
 
 ## 🌏 개발
 
 ### Front-End
 
 - yarn + Vite + React.js + Typescript
-- sweatalert2
 
 ### Back-End
 
-- Node.js + Express.js
-- node-cron
-- nodemailer
+- Node.js + Express.js + Typescript + MVC 패턴
+- 스케줄링: node-cron
+- 메일 전송: nodemailer
 
 ### Database
 
