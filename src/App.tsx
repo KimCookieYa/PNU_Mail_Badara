@@ -27,9 +27,9 @@ function App() {
   return (
     <>
       <Header moveToArtist={moveToArtist} />
-      <div ref={mainRef}>
+      <main ref={mainRef}>
         <RouterProvider router={router} />
-      </div>
+      </main>
       <AboutPage ref={aboutRef} />
       <DepartmentPage ref={departmentRef} />
       <DetailPage ref={detailRef} />

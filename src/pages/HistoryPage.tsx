@@ -28,7 +28,7 @@ const HistoryPage = forwardRef<HTMLDivElement>((__, ref) => {
   }, []);
 
   return (
-    <div
+    <section
       ref={ref}
       className="flex flex-col items-center justify-center w-auto min-h-screen"
     >
@@ -44,7 +44,7 @@ const HistoryPage = forwardRef<HTMLDivElement>((__, ref) => {
         자세한 내역은 https://github.com/{import.meta.env.VITE_GITHUB_OWNER}/
         {import.meta.env.VITE_GITHUB_REPO}를 참고해주시기 바랍니다:)
       </p>
-    </div>
+    </section>
   );
 });
 

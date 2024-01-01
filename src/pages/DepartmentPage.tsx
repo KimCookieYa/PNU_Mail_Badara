@@ -66,7 +66,7 @@ const DepartmentPage = forwardRef<HTMLDivElement>((__, ref) => {
   });
 
   return (
-    <div
+    <section
       ref={ref}
       className="flex flex-col items-center justify-center w-auto min-h-screen lg:flex-row "
     >
@@ -75,7 +75,7 @@ const DepartmentPage = forwardRef<HTMLDivElement>((__, ref) => {
           <MyTable key={departmentBoard.name} data={departmentBoard} />
         ))}
       </div>
-    </div>
+    </section>
   );
 });
 

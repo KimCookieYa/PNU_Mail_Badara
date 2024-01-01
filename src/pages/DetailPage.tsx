@@ -18,7 +18,7 @@ const DetailPage = forwardRef<HTMLDivElement>((__, ref) => {
   });
 
   return (
-    <div
+    <section
       ref={ref}
       className="flex flex-col items-center justify-center w-auto min-h-screen lg:flex-row "
     >
@@ -28,7 +28,7 @@ const DetailPage = forwardRef<HTMLDivElement>((__, ref) => {
         <CountUp end={subscriberCount} duration={8} enableScrollSpy={true} />
       </div>
       <img src={gmail4} alt="gmail4" className="w-1/3 h-3/4" />
-    </div>
+    </section>
   );
 });
 

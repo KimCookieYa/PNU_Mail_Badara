@@ -3,7 +3,7 @@ function Title({ onClick }: { onClick: () => void }) {
     <>
       <div className="p-4 text-white">
         <div className="container mx-auto">
-          <div className="text-4xl font-bold" onClick={onClick}>
+          <div className="text-3xl font-bold" onClick={onClick}>
             Mail Badara
           </div>
         </div>
