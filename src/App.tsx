@@ -8,7 +8,6 @@ import AboutPage from "./pages/AboutPage";
 import DepartmentPage from "./pages/DepartmentPage";
 import DetailPage from "./pages/DetailPage";
 import HistoryPage from "./pages/HistoryPage";
-import ParticlesBackground from "./components/ParticlesBackground";
 
 function App() {
   const mainRef = useRef<HTMLDivElement>(null);
@@ -27,7 +26,6 @@ function App() {
 
   return (
     <>
-      <ParticlesBackground />
       <Header moveToArtist={moveToArtist} />
       <div ref={mainRef}>
         <RouterProvider router={router} />

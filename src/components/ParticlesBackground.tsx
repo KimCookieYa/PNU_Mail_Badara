@@ -24,7 +24,7 @@ function ParticlesBackground() {
       options={{
         background: {
           color: {
-            value: "#0d47a1",
+            value: "#000000",
           },
         },
         fpsLimit: 120,
