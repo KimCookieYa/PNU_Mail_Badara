@@ -108,10 +108,12 @@ async function sendEmailFor(
 
     for (const postIdx of postIdxs) {
       const postIndex = Number(postIdx);
+      if (pastPostIndexs.length <= boardIdx) {
+        pastPostIndexs.push(0);
+      }
+
       if (postIndex > pastPostIndexs[boardIdx]) {
-        const tempDate = department.code.includes("snu")
-          ? new Date(message.message[postIdx].pubDate)
-          : stringToDate(message.message[postIdx].pubDate);
+        const tempDate = stringToDate(message.message[postIdx].pubDate);
         if (startDate === null || startDate > tempDate) {
           startDate = tempDate;
         }
