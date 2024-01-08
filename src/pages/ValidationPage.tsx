@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 
 import { isValid } from "../utils/Email";
-import { Response } from "../types/page";
+import { Response } from "../@types/page";
 
 function ValidationPage() {
   const { email } = useParams();

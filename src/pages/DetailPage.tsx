@@ -1,9 +1,7 @@
-import gmail3 from "../assets/gmail_screenshot3.jpg";
-import gmail4 from "../assets/gmail_screenshot4.jpg";
 import { forwardRef, useState, useEffect } from "react";
 import axios from "axios";
 import CountUp from "react-countup";
-import { Response } from "../types/page";
+import { Response } from "../@types/page";
 
 const DetailPage = forwardRef<HTMLDivElement>((__, ref) => {
   const [subscriberCount, setSubscriberCount] = useState<number>(100);

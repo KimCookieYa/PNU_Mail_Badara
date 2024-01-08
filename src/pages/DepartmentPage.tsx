@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { DeaprtmentList } from "../types/page";
+import { DeaprtmentList } from "../@types/page";
 
 function MyTable({ data }: { data: DeaprtmentList }) {
   return (

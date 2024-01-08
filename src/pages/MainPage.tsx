@@ -5,7 +5,7 @@ import { isValid } from "../utils/Email";
 import { mySuccessAlert, myErrorAlert, myWarningAlert } from "../utils/MyAlert";
 import Loading from "../components/Loading";
 
-import { Response, DepartmentObject } from "../types/page";
+import { Response, DepartmentObject } from "../@types/page";
 
 function MainPage() {
   const [email, setEmail] = useState<string>("");

@@ -1,4 +1,30 @@
 import { useRef, useEffect } from "react";
+import type { StarType } from "star";
+
+class Star implements StarType {
+  orbitRadius: number;
+  radius: number;
+  orbitX: number;
+  orbitY: number;
+  timePassed: number;
+  speed: number;
+  alpha: number;
+
+  constructor(w: number, h: number, maxStars: number) {
+    this.orbitRadius = random(0, maxOrbit(w, h));
+    this.radius = random(60, this.orbitRadius) / 12;
+    this.orbitX = w / 2;
+    this.orbitY = h / 2;
+    this.timePassed = random(0, maxStars);
+    this.speed = random(0, this.orbitRadius) / 900000;
+    this.alpha = random(2, 10) / 10;
+  }
+
+  draw() {
+    // 여기에 별을 그리는 코드를 작성하세요.
+    // 예: ctx.arc(this.orbitX, this.orbitY, this.radius, 0, Math.PI * 2, false);
+  }
+}
 
 export default function StarCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -14,25 +40,13 @@ export default function StarCanvas() {
     const w = (canvas.width = window.innerWidth);
     const h = (canvas.height = window.innerHeight);
 
-    const stars: (typeof Star)[] = [];
+    const stars: StarType[] = [];
     const maxStars = 1400;
-
-    const Star = function () {
-      this.orbitRadius = random(maxOrbit(w, h));
-      this.radius = random(60, this.orbitRadius) / 12;
-      this.orbitX = w / 2;
-      this.orbitY = h / 2;
-      this.timePassed = random(0, maxStars);
-      this.speed = random(this.orbitRadius) / 900000;
-      this.alpha = random(2, 10) / 10;
-
-      stars.push(this);
-    };
 
     Star.prototype.draw = function () {
       const x = Math.sin(this.timePassed) * this.orbitRadius + this.orbitX;
       const y = Math.cos(this.timePassed) * this.orbitRadius + this.orbitY;
-      const twinkle = random(10, this);
+      const twinkle = random(0, 10);
 
       if (twinkle === 1 && this.alpha > 0) {
         this.alpha -= 0.05;
@@ -52,7 +66,7 @@ export default function StarCanvas() {
     };
 
     for (let i = 0; i < maxStars; i++) {
-      new Star();
+      stars.push(new Star(w, h, maxStars));
     }
     const hue = 217;
     function animation() {
@@ -71,27 +85,6 @@ export default function StarCanvas() {
       }
 
       animationFrameId = window.requestAnimationFrame(animation);
-    }
-
-    function random(min: number, max: number) {
-      if (arguments.length < 2) {
-        max = min;
-        min = 0;
-      }
-
-      if (min > max) {
-        const hold = max;
-        max = min;
-        min = hold;
-      }
-
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    function maxOrbit(x: number, y: number) {
-      const max = Math.max(x, y);
-      const diameter = Math.round(Math.sqrt(max * max + max * max));
-      return diameter / 2;
     }
 
     // 그라디언트 캔버스 생성
@@ -135,4 +128,25 @@ export default function StarCanvas() {
       className="fixed top-0 left-0 right-0 h-full max-w-full m-auto -z-50 sm:w-full"
     ></canvas>
   );
+}
+
+function random(min: number, max: number) {
+  if (arguments.length < 2) {
+    max = min;
+    min = 0;
+  }
+
+  if (min > max) {
+    const hold = max;
+    max = min;
+    min = hold;
+  }
+
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function maxOrbit(x: number, y: number) {
+  const max = Math.max(x, y);
+  const diameter = Math.round(Math.sqrt(max * max + max * max));
+  return diameter / 2;
 }
