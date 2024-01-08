@@ -105,57 +105,53 @@ function MainPage() {
   };
 
   return (
-    <section className="flex flex-col items-center justify-center w-full h-screen gap-4 lg:flex-row xl:flex-row">
+    <section className="flex flex-col items-center justify-center w-full min-h-screen gap-4 p-4">
       {loading ? (
         <Loading />
       ) : (
         <>
-          <div className="flex flex-col mt-24 space-y-2">
-            <select
-              className="border border-black"
-              value={departmentList[selectedDepartment]}
-              onChange={handleSelectedDepartment}
-            >
-              {Object.keys(departmentList).map((key) => {
-                return (
-                  <option key={key} value={departmentList[key]}>
-                    {departmentList[key]}
-                  </option>
-                );
-              })}
-            </select>
+          <select
+            className="min-w-[300px] p-2 opacity-60 hover:outline-none"
+            value={departmentList[selectedDepartment]}
+            onChange={handleSelectedDepartment}
+          >
+            {Object.keys(departmentList).map((key) => {
+              return (
+                <option key={key} value={departmentList[key]}>
+                  {departmentList[key]}
+                </option>
+              );
+            })}
+          </select>
+          <input
+            type="email"
+            placeholder="Email"
+            className="min-w-[300px] p-2 h-fit opacity-60 hover:outline-none"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoFocus
+          />
+          <button
+            onClick={handleSubscribe}
+            className="p-2 text-white bg-[#0C46A0] opacity-60 min-w-[300px]"
+          >
+            Subscribe
+          </button>
+          <button
+            onClick={handleUnsubscribe}
+            className="min-w-[300px] p-2 text-white bg-gray-500 opacity-60"
+          >
+            Unsubscribe
+          </button>
+          <label className="text-white">
             <input
-              type="email"
-              placeholder="이메일을 입력해주세요."
-              className="flex-grow px-3 py-2 border border-gray-300 rounded"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              autoFocus
-            />
-            <div className="flex space-x-2">
-              <button
-                onClick={handleSubscribe}
-                className="px-4 py-2 text-white bg-[#0C46A0]"
-              >
-                Subscribe
-              </button>
-              <button
-                onClick={handleUnsubscribe}
-                className="px-4 py-2 text-white bg-gray-500"
-              >
-                Unsubscribe
-              </button>
-            </div>
-            <label className="text-white">
-              <input
-                ref={checkboxRef}
-                type="checkbox"
-                name="개인정보수집제공동의"
-                value="개인정보수집제공동의"
-              />{" "}
-              개인정보수집제공동의
-            </label>
-          </div>
+              ref={checkboxRef}
+              type="checkbox"
+              name="개인정보수집제공동의"
+              value="개인정보수집제공동의"
+            />{" "}
+            개인정보수집제공동의
+          </label>
         </>
       )}
     </section>

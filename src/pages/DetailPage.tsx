@@ -20,14 +20,13 @@ const DetailPage = forwardRef<HTMLDivElement>((__, ref) => {
   return (
     <section
       ref={ref}
-      className="flex flex-col items-center justify-center w-auto min-h-screen lg:flex-row "
+      className="flex flex-col items-center justify-center w-auto min-h-screen sm:flex-row "
     >
-      <img src={gmail3} alt="gmail3" className="w-1/3 h-3/4" />
       <div className="m-10 text-4xl text-center text-white">
-        <h1>구독자 수</h1>
+        <h1>MailBadara 구독자 수</h1>
+        <br />
         <CountUp end={subscriberCount} duration={8} enableScrollSpy={true} />
       </div>
-      <img src={gmail4} alt="gmail4" className="w-1/3 h-3/4" />
     </section>
   );
 });
