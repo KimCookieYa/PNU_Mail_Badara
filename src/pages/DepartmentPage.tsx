@@ -2,8 +2,26 @@ import { forwardRef, useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { DeaprtmentList } from "../@types/page";
+import { SwiperSlide, Swiper } from "swiper/react";
+import { EffectFade, EffectCube } from "swiper/modules";
 
-function MyTable({ data }: { data: DeaprtmentList }) {
+import "swiper/css";
+import "swiper/css/effect-fade";
+import {
+  Navigation,
+  Pagination,
+  Scrollbar,
+  A11y,
+  Autoplay,
+} from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/scrollbar";
+import "swiper/css/zoom";
+import "swiper/css/virtual";
+
+function DepartmentBoard({ data }: { data: DeaprtmentList }) {
   return (
     <a
       href={`https://${data.code}.pusan.ac.kr/${data.code}/index.do`}
@@ -13,21 +31,14 @@ function MyTable({ data }: { data: DeaprtmentList }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
-        whileHover={{ scale: 1.2 }}
+        whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.8 }}
-        className="p-5 m-10 text-white border border-solid rounded-lg shadow-md"
+        className="p-5 m-10 text-white border sm:w-[300px] w-[280px] h-[300px] overflow-y-scroll swiper-box"
       >
-        <h2 className="mb-5 text-xl font-bold ">
+        <h2 className="mb-5 text-xl font-bold">
           {data.name} ({data.code})
         </h2>
-        <table className="w-full border-t border-collapse border-gray-300">
-          <thead>
-            <tr>
-              <th className="px-4 py-2 font-semibold text-left border-b border-gray-300">
-                게시판 이름
-              </th>
-            </tr>
-          </thead>
+        <table className="w-full border-t border-collapse border-gray-300 h-fit">
           <tbody>
             {data.board_names.map((boardName) => (
               <tr
@@ -63,17 +74,60 @@ const DepartmentPage = forwardRef<HTMLDivElement>((__, ref) => {
       }
     };
     fetch();
-  });
+  }, []);
 
   return (
     <section
       ref={ref}
-      className="flex flex-col items-center justify-center w-auto min-h-screen lg:flex-row "
+      className="flex flex-col items-center justify-center w-full min-h-screen"
     >
-      <div className="grid grid-cols-1 gap-4 mt-10 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {departmentBoardList.map((departmentBoard) => (
-          <MyTable key={departmentBoard.name} data={departmentBoard} />
+      <Swiper
+        modules={[
+          Navigation,
+          Pagination,
+          Scrollbar,
+          A11y,
+          Autoplay,
+          EffectFade,
+          EffectCube,
+        ]}
+        navigation
+        pagination={{ clickable: true }}
+        scrollbar={{ draggable: true }}
+        onSwiper={(swiper) => console.log(swiper)}
+        onSlideChange={() => console.log("slide change")}
+        autoplay={{ delay: 2000, disableOnInteraction: false }}
+        effect="slide"
+        className="w-full sm:w-3/4"
+        centeredSlides
+        slidesPerView={1}
+        spaceBetween={10}
+        breakpoints={{
+          320: {
+            slidesPerView: 1,
+            spaceBetween: 20,
+          },
+          480: {
+            slidesPerView: 2,
+            spaceBetween: 30,
+          },
+          640: {
+            slidesPerView: 3,
+            spaceBetween: 50,
+          },
+        }}
+      >
+        {departmentBoardList.map((data) => (
+          <SwiperSlide
+            key={data.code}
+            className="flex items-center justify-center"
+          >
+            <DepartmentBoard data={data} />
+          </SwiperSlide>
         ))}
+      </Swiper>
+      <div className="text-xl font-bold text-center text-white animate-scale-up-down">
+        ⬆️Click me to see more⬆️
       </div>
     </section>
   );

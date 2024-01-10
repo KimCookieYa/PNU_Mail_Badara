@@ -22,3 +22,12 @@ body {
 * {
   font-family: inherit;
 }
+
+.swiper-box {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.swiper-box::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera*/
+}

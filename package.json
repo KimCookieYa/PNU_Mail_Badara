@@ -21,6 +21,7 @@
     "react-particles": "^2.12.2",
     "react-router-dom": "^6.16.0",
     "sweetalert2": "^11.7.31",
+    "swiper": "^11.0.5",
     "tsparticles-slim": "^2.12.0"
   },
   "devDependencies": {

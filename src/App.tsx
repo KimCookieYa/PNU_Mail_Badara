@@ -25,7 +25,7 @@ function App() {
   };
 
   return (
-    <>
+    <div className="relative w-full h-full">
       <Header moveToArtist={moveToArtist} />
       <main ref={mainRef}>
         <RouterProvider router={router} />
@@ -34,7 +34,7 @@ function App() {
       <DepartmentPage ref={departmentRef} />
       <DetailPage ref={detailRef} />
       <HistoryPage ref={historyRef} />
-    </>
+    </div>
   );
 }
 
