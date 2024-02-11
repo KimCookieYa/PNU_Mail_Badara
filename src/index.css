@@ -15,3 +15,7 @@
 .animate-scale-up-down {
   @apply animate-[scale-up-down_1.0s_ease-in-out_infinite];
 }
+
+.noscroll::-webkit-scrollbar {
+  display: none;
+}

@@ -1,12 +1,9 @@
-import { forwardRef, useEffect, useState } from "react";
-import axios from "axios";
+import { forwardRef } from "react";
 import { motion } from "framer-motion";
-import { DeaprtmentList } from "../../@types/page";
+import { useQuery } from "@tanstack/react-query";
+
 import { SwiperSlide, Swiper } from "swiper/react";
 import { EffectFade, EffectCube } from "swiper/modules";
-
-import "swiper/css";
-import "swiper/css/effect-fade";
 import {
   Navigation,
   Pagination,
@@ -15,11 +12,15 @@ import {
   Autoplay,
 } from "swiper/modules";
 import "swiper/css";
+import "swiper/css/effect-fade";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
 import "swiper/css/zoom";
 import "swiper/css/virtual";
+
+import { getDepartmentBoard } from "../../apis/department";
+import { DeaprtmentList } from "../../@types/page";
 
 function DepartmentBoard({ data }: { data: DeaprtmentList }) {
   return (
@@ -58,77 +59,70 @@ function DepartmentBoard({ data }: { data: DeaprtmentList }) {
 }
 
 const DepartmentSection = forwardRef<HTMLDivElement>((__, ref) => {
-  const [departmentBoardList, setDepartmentBoardList] = useState<
-    DeaprtmentList[]
-  >([]);
-
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        const res = await axios.get("/api/department/board");
-        if (res.data.type === "SUCCESS") {
-          setDepartmentBoardList(res.data.data);
-        }
-      } catch (error) {
-        console.error("Error:", error);
-      }
-    };
-    fetch();
-  }, []);
+  const { data: departmentBoardList, isLoading } = useQuery({
+    queryKey: ["department"],
+    queryFn: getDepartmentBoard,
+  });
 
   return (
     <section
       ref={ref}
       className="flex flex-col items-center justify-center w-full min-h-screen"
     >
-      <Swiper
-        modules={[
-          Navigation,
-          Pagination,
-          Scrollbar,
-          A11y,
-          Autoplay,
-          EffectFade,
-          EffectCube,
-        ]}
-        navigation
-        pagination={{ clickable: true }}
-        scrollbar={{ draggable: true }}
-        onSwiper={(swiper) => console.log(swiper)}
-        onSlideChange={() => console.log("slide change")}
-        autoplay={{ delay: 2000, disableOnInteraction: false }}
-        effect="slide"
-        className="w-full sm:w-3/4"
-        centeredSlides
-        slidesPerView={1}
-        spaceBetween={10}
-        breakpoints={{
-          320: {
-            slidesPerView: 1,
-            spaceBetween: 20,
-          },
-          480: {
-            slidesPerView: 2,
-            spaceBetween: 30,
-          },
-          640: {
-            slidesPerView: 3,
-            spaceBetween: 50,
-          },
-        }}
-      >
-        {departmentBoardList.map((data) => (
-          <SwiperSlide
-            key={data.code}
-            className="flex items-center justify-center"
+      {!isLoading ? (
+        <>
+          <Swiper
+            modules={[
+              Navigation,
+              Pagination,
+              Scrollbar,
+              A11y,
+              Autoplay,
+              EffectFade,
+              EffectCube,
+            ]}
+            navigation
+            pagination={{ clickable: true }}
+            scrollbar={{ draggable: true }}
+            onSwiper={(swiper) => console.log(swiper)}
+            onSlideChange={() => console.log("slide change")}
+            autoplay={{ delay: 2000, disableOnInteraction: false }}
+            effect="slide"
+            className="w-full sm:w-3/4"
+            centeredSlides
+            slidesPerView={1}
+            spaceBetween={10}
+            breakpoints={{
+              320: {
+                slidesPerView: 1,
+                spaceBetween: 20,
+              },
+              480: {
+                slidesPerView: 2,
+                spaceBetween: 30,
+              },
+              640: {
+                slidesPerView: 3,
+                spaceBetween: 50,
+              },
+            }}
           >
-            <DepartmentBoard data={data} />
-          </SwiperSlide>
-        ))}
-      </Swiper>
-      <div className="text-xl font-bold text-center text-white animate-scale-up-down">
-        ⬆️Click me to see more⬆️
-      </div>
+            {departmentBoardList?.map((data) => (
+              <SwiperSlide
+                key={data.code}
+                className="flex items-center justify-center"
+              >
+                <DepartmentBoard data={data} />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+          <div className="text-xl font-bold text-center text-white animate-scale-up-down">
+            ⬆️Click me to see more⬆️
+          </div>
+        </>
+      ) : (
+        <p>Loading...</p>
+      )}
     </section>
   );
 });
