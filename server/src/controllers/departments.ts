@@ -23,7 +23,10 @@ export const getDepartmentName: RequestHandler = async (__, res) => {
 
 export const getDepartmentBoardName: RequestHandler = async (req, res) => {
   try {
-    const departments = await Department.find({}, "code name board_names");
+    const departments = await Department.find(
+      {},
+      "code name board_names boards"
+    );
 
     return res.json({
       type: "SUCCESS",

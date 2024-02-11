@@ -20,9 +20,9 @@ import "swiper/css/zoom";
 import "swiper/css/virtual";
 
 import { getDepartmentBoard } from "../../apis/department";
-import { DeaprtmentList } from "../../@types/page";
+import { Department } from "../../@types/page";
 
-function DepartmentBoard({ data }: { data: DeaprtmentList }) {
+function DepartmentBoard({ data }: { data: Department }) {
   return (
     <a
       href={`https://${data.code}.pusan.ac.kr/${data.code}/index.do`}

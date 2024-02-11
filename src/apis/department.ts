@@ -1,7 +1,7 @@
 import axios from "axios";
-import { DeaprtmentList } from "../@types/page";
+import { Deaprtment } from "../@types/page";
 
-export async function getDepartmentBoard(): Promise<DeaprtmentList[]> {
+export async function getDepartmentBoard(): Promise<Deaprtment[]> {
   try {
     const res = await axios.get("http://localhost:8000/api/department/board");
     if (res.data.type === "SUCCESS") {

@@ -14,10 +14,11 @@ export type DepartmentObject = {
   [key: string]: string;
 };
 
-export type DeaprtmentList = {
+export type Department = {
   code: string;
   name: string;
   board_names: string[];
+  boards: string[];
 };
 
 export interface Commit {
