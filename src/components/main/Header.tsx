@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Title from "./Title";
-import { routerInfoList } from "../pages/Router";
+import { routerInfoList } from "../../pages/Router";
 
 function Header({ moveToArtist }: { moveToArtist: (index: number) => void }) {
   return (

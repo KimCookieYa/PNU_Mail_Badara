@@ -3,7 +3,7 @@ import axios from "axios";
 
 import { isValid } from "../utils/Email";
 import { mySuccessAlert, myErrorAlert, myWarningAlert } from "../utils/MyAlert";
-import Loading from "../components/Loading";
+import Loading from "../components/main/Loading";
 
 import { Response, DepartmentObject } from "../@types/page";
 

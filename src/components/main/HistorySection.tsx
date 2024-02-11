@@ -1,8 +1,8 @@
 import { useEffect, useState, forwardRef } from "react";
 import axios from "axios";
-import { Response } from "../@types/page";
+import { Response } from "../../@types/page";
 
-const HistoryPage = forwardRef<HTMLDivElement>((__, ref) => {
+const HistorySection = forwardRef<HTMLDivElement>((__, ref) => {
   const [commitHistory, setCommitHistory] = useState<string>("");
 
   useEffect(() => {
@@ -47,4 +47,4 @@ const HistoryPage = forwardRef<HTMLDivElement>((__, ref) => {
   );
 });
 
-export default HistoryPage;
+export default HistorySection;

@@ -3,11 +3,11 @@ import { RouterProvider } from "react-router-dom";
 
 import "./App.css";
 import { router } from "./pages/Router";
-import Header from "./components/Header";
-import AboutPage from "./pages/AboutPage";
-import DepartmentPage from "./pages/DepartmentPage";
-import DetailPage from "./pages/DetailPage";
-import HistoryPage from "./pages/HistoryPage";
+import Header from "./components/main/Header";
+import AboutSection from "./components/main/AboutSection";
+import DepartmentSection from "./components/main/DepartmentSection";
+import DetailSection from "./components/main/DetailSection";
+import HistorySection from "./components/main/HistorySection";
 
 function App() {
   const mainRef = useRef<HTMLDivElement>(null);
@@ -30,10 +30,10 @@ function App() {
       <main ref={mainRef}>
         <RouterProvider router={router} />
       </main>
-      <AboutPage ref={aboutRef} />
-      <DepartmentPage ref={departmentRef} />
-      <DetailPage ref={detailRef} />
-      <HistoryPage ref={historyRef} />
+      <AboutSection ref={aboutRef} />
+      <DepartmentSection ref={departmentRef} />
+      <DetailSection ref={detailRef} />
+      <HistorySection ref={historyRef} />
     </div>
   );
 }

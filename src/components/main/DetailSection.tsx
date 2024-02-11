@@ -1,9 +1,9 @@
 import { forwardRef, useState, useEffect } from "react";
 import axios from "axios";
 import CountUp from "react-countup";
-import { Response } from "../@types/page";
+import { Response } from "../../@types/page";
 
-const DetailPage = forwardRef<HTMLDivElement>((__, ref) => {
+const DetailSection = forwardRef<HTMLDivElement>((__, ref) => {
   const [subscriberCount, setSubscriberCount] = useState<number>(100);
 
   useEffect(() => {
@@ -29,4 +29,4 @@ const DetailPage = forwardRef<HTMLDivElement>((__, ref) => {
   );
 });
 
-export default DetailPage;
+export default DetailSection;

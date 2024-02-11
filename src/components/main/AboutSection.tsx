@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 
-const AboutPage = forwardRef<HTMLDivElement>((__, ref) => {
+const AboutSection = forwardRef<HTMLDivElement>((__, ref) => {
   return (
     <section ref={ref} className="flex justify-center w-full min-h-screen">
       <div className="flex items-center justify-center w-full m-0 mt-20 bg-white sm:flex-row">
@@ -33,4 +33,4 @@ const AboutPage = forwardRef<HTMLDivElement>((__, ref) => {
   );
 });
 
-export default AboutPage;
+export default AboutSection;

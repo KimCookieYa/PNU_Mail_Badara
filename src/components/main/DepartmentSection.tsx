@@ -1,7 +1,7 @@
 import { forwardRef, useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { DeaprtmentList } from "../@types/page";
+import { DeaprtmentList } from "../../@types/page";
 import { SwiperSlide, Swiper } from "swiper/react";
 import { EffectFade, EffectCube } from "swiper/modules";
 
@@ -57,7 +57,7 @@ function DepartmentBoard({ data }: { data: DeaprtmentList }) {
   );
 }
 
-const DepartmentPage = forwardRef<HTMLDivElement>((__, ref) => {
+const DepartmentSection = forwardRef<HTMLDivElement>((__, ref) => {
   const [departmentBoardList, setDepartmentBoardList] = useState<
     DeaprtmentList[]
   >([]);
@@ -133,4 +133,4 @@ const DepartmentPage = forwardRef<HTMLDivElement>((__, ref) => {
   );
 });
 
-export default DepartmentPage;
+export default DepartmentSection;
