@@ -13,6 +13,7 @@ export default defineConfig({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "robots.txt"],
       manifest: {
+        start_url: "/mobile",
         name: "MailBadara",
         short_name: "MailBadara",
         description: "PNU's Newsletter",
