@@ -6,7 +6,7 @@ import DepartmentSection from "../components/main/DepartmentSection";
 import DetailSection from "../components/main/DetailSection";
 import HistorySection from "../components/main/HistorySection";
 import StarBackground from "../components/main/StartBackground";
-import HomeSection from "./HomeSection";
+import HomeSection from "../components/main/HomeSection";
 
 export default function MainPage() {
   const homeRef = useRef<HTMLDivElement>(null);

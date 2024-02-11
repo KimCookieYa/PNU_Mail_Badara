@@ -1,11 +1,15 @@
 import { useEffect, useState, useRef, forwardRef } from "react";
 import axios from "axios";
 
-import { isValid } from "../utils/Email";
-import { mySuccessAlert, myErrorAlert, myWarningAlert } from "../utils/MyAlert";
-import Loading from "../components/main/Loading";
+import { isValid } from "../../utils/Email";
+import {
+  mySuccessAlert,
+  myErrorAlert,
+  myWarningAlert,
+} from "../../utils/MyAlert";
+import Loading from "./Loading";
 
-import { Response, DepartmentObject } from "../@types/page";
+import { Response, DepartmentObject } from "../../@types/page";
 
 const HomeSection = forwardRef<HTMLDivElement>((__, ref) => {
   const [email, setEmail] = useState<string>("");
