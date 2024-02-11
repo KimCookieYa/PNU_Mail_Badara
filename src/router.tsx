@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
-import MainPage from "../pages/MainPage";
-import ValidationPage from "../pages/ValidationPage";
-import PwaPage from "./PwaPage";
+import MainPage from "./pages/MainPage";
+import ValidationPage from "./pages/ValidationPage";
+import PwaPage from "./pages/PwaPage";
 
 export const router = createBrowserRouter([
   {
@@ -19,7 +19,7 @@ export const router = createBrowserRouter([
   },
 ]);
 
-export const routerInfoList = [
+export const homeRouterInfoList = [
   "Main",
   "About",
   "Department",

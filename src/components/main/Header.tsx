@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Title from "./Title";
-import { routerInfoList } from "../../pages/Router";
+import { homeRouterInfoList } from "../../router";
 
 function Header({ moveToArtist }: { moveToArtist: (index: number) => void }) {
   return (
@@ -9,7 +9,7 @@ function Header({ moveToArtist }: { moveToArtist: (index: number) => void }) {
         <Title onClick={() => moveToArtist(0)} />
         <nav className="hidden md:flex">
           <ul className="flex mr-8 text-white gap-x-6">
-            {routerInfoList.map((routerInfo, index) => {
+            {homeRouterInfoList.map((routerInfo, index) => {
               return (
                 <li
                   className="hover:cursor-pointer"
